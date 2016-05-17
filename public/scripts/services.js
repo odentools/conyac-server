@@ -58,18 +58,18 @@ angular.module('ConyacServerAPI', ['ngResource', 'ngStorage'])
 .factory('Accounts', ['$resource', function($resource) {
 
 	return $resource(
-		'/cp-api/accounts/:id',
+		'/api/accounts/:id',
 		{
 			id: '@id'
 		},
 		{
 			signIn: {
 				method: 'POST',
-				url: '/cp-api/accounts/signin'
+				url: '/api/accounts/signin'
 			},
 			signOut: {
 				method: 'POST',
-				url: '/cp-api/accounts/signout'
+				url: '/api/accounts/signout'
 			},
 			get: {
 				method: 'GET',
@@ -77,7 +77,7 @@ angular.module('ConyacServerAPI', ['ngResource', 'ngStorage'])
 			},
 			getCurrentAccount: {
 				method: 'GET',
-				url: '/cp-api/accounts/@me'
+				url: '/api/accounts/@me'
 			},
 			find: {
 				method: 'GET'

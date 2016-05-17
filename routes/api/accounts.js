@@ -1,5 +1,5 @@
 /**
- * Routes for /cp-api/accounts
+ * Routes for /api/accounts
  */
 
 var express = require('express');
@@ -10,7 +10,7 @@ var crypto = require('crypto'), helper = require(__dirname + '/../../models/help
 
 
 /**
- * GET /cp-api/accounts - Get a list of accounts
+ * GET /api/accounts - Get a list of accounts
  */
 router.get('/', function (req, res) {
 
@@ -32,7 +32,7 @@ router.get('/', function (req, res) {
 
 
 /**
- * GET /cp-api/accounts/:id - Get the account
+ * GET /api/accounts/:id - Get the account
  */
 router.get('/:id', function (req, res) {
 
@@ -69,7 +69,7 @@ router.get('/:id', function (req, res) {
 
 
 /**
- * DELETE /cp-api/accounts/:id - Delete the account
+ * DELETE /api/accounts/:id - Delete the account
  */
 router.delete('/:id', function (req, res) {
 
@@ -101,7 +101,7 @@ router.delete('/:id', function (req, res) {
 
 
 /**
- * POST /cp-api/accounts - Add an account
+ * POST /api/accounts - Add an account
  */
 router.post('/', function (req, res) {
 
@@ -151,7 +151,7 @@ router.post('/', function (req, res) {
 
 
 /**
- * POST /cp-api/sessions/signin - Sign in
+ * POST /api/sessions/signin - Sign in
  */
 router.post('/signin', function (req, res) {
 
@@ -204,7 +204,7 @@ router.post('/signin', function (req, res) {
 
 
 /**
- * POST /cp-api/accounts/signout - Sign out
+ * POST /api/accounts/signout - Sign out
  */
 router.post('/signout', function (req, res) {
 

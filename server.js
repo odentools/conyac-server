@@ -22,7 +22,7 @@ app.use(require('body-parser').json());
 app.use(require(__dirname + '/routes/_hook'));
 
 // Routes
-app.use('/cp-api/accounts', require(__dirname + '/routes/cp-api/accounts'));
+app.use('/api/accounts', require(__dirname + '/routes/api/accounts'));
 
 // Start the server
 var server = app.listen(3000, function () {
