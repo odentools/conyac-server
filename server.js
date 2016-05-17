@@ -6,7 +6,8 @@
 
 'use strict';
 
-var express = require('express'), mysql = require('mysql');
+var express = require('express'), mysql = require('mysql'),
+	helper = require(__dirname + '/models/helper');
 
 var app = express();
 
@@ -17,11 +18,8 @@ app.use(express.static('public'));
 // Use application/json for Content-Type of POST request
 app.use(require('body-parser').json());
 
-// Allow the Cross Domain Request from JavaScript
-app.use(function (req, res, next) {
-	res.header('Access-Control-Allow-Origin', '*');
-	next();
-});
+// Request hook
+app.use(require(__dirname + '/routes/_hook'));
 
 // Routes
 app.use('/cp-api/accounts', require(__dirname + '/routes/cp-api/accounts'));

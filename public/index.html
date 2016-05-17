@@ -32,18 +32,47 @@
 		<script src="/scripts/app.js"></script>
 
 	</head>
-	<body ng-app="ConyacControlPanelApp" ng-controller="WholeCtrl" ng-cloak layout="column" layout-align="start stretch">
+	<body ng-app="ConyacControlPanelApp" ng-controller="SessionCtrl" ng-cloak layout="column" layout-align="start stretch">
 
 		<div layout="column">
 
 			<md-toolbar>
 				<div class="md-toolbar-tools">
+
+					<!-- Opener for Sidebar -->
 					<md-button class="md-icon-button" aria-label="Open a menu" ng-click="toggleMenu()">
 						<md-icon>menu</md-icon>
 					</md-button>
+					<!---->
+
+					<!-- Logo -->
 					<a ng-href="/"><span>Control Panel</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 					<small>by <a href="https://github.com/odentools/conyac-server" target="_blank">Conyac Server</a></small>
+					<!---->
+
+					<span flex></span>
+
+					<!-- Account Menu -->
+					<span>{{account.name}}</span>
+					<md-menu md-position-mode="target-right target" ng-if="account != null">
+						<md-button aria-label="Open Account Menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+							<md-icon md-menu-origin>person</md-icon>
+						</md-button>
+						<md-menu-content width="3" >
+							<md-menu-item>
+								<md-button ng-click="signOut()">
+									<div layout="row">
+										<p flex>Sign Out</p>
+										<md-icon md-menu-align-target style="margin: auto 3px auto 0;">exit_to_app</md-icon>
+									</div>
+								</md-button>
+							</md-menu-item>
+						</md-menu-content>
+					</md-menu>
+					<!---->
+
 				</div>
+
 			</md-toolbar>
 
 		</div>
@@ -51,7 +80,7 @@
 		<div layout="row" layout-align="start stretch">
 
 			<!-- Sidebar -->
-			<md-sidenav class="sidebar md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
+			<md-sidenav class="sidebar md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" ng-if="account != null">
 				<md-toolbar class="md-theme-indigo md-hue-2">
 					<h1 class="md-toolbar-tools">Menu</h1>
 				</md-toolbar>
@@ -83,7 +112,9 @@
 			</md-sidenav>
 			<!---->
 
+			<!-- Content -->
 			<div flex ng-view></div>
+			<!---->
 
 		</div>
 

@@ -4,15 +4,100 @@
 
 var express = require('express');
 var router = express.Router();
-var crypto = require('crypto'), helper = require(__dirname + '/../../models/helper');
 
-// Example articles
-var exampleArticles = [
-	{
-		title: 'Hello, World',
-		content: 'Hi! This is an example article by OdenTools.'
+var crypto = require('crypto'), helper = require(__dirname + '/../../models/helper'),
+	async = require('async');
+
+
+/**
+ * GET /cp-api/accounts - Get a list of accounts
+ */
+router.get('/', function (req, res) {
+
+	var db = helper.getDB();
+	db.query('SELECT * FROM Account;', function (err, rows) {
+
+		var accounts = [];
+
+		rows.forEach(function (item, i) {
+			delete item.pw;
+			accounts.push(item);
+		});
+
+		res.send(accounts);
+
+	});
+
+});
+
+
+/**
+ * GET /cp-api/accounts/:id - Get the account
+ */
+router.get('/:id', function (req, res) {
+
+	var db = helper.getDB();
+
+	var id = null;
+	if (req.params.id == '@me') {
+		id = req.headers.sessionAccountId;
+	} else {
+		id = req.params.id;
 	}
-];
+
+	if (id == null) {
+		res.status(400).send('Invalid parameter or session');
+		return;
+	}
+
+	// Get the account from the account ID
+	db.query('SELECT * FROM Account WHERE id = ?;', [id], function (err, rows) {
+
+		if (err || rows.length == 0) {
+			res.status(400).send('Could not get the account ' + id);
+			return;
+		}
+
+		var account = rows[0];
+		delete account.pw;
+
+		res.send(account);
+
+	});
+
+});
+
+
+/**
+ * DELETE /cp-api/accounts/:id - Delete the account
+ */
+router.delete('/:id', function (req, res) {
+
+	var id = req.params.id;
+	if (id == null) {
+		res.status(400).send('Invalid parameter');
+		return;
+	}
+
+	var db = helper.getDB();
+	db.query('DELETE FROM Account WHERE id = ?;', [id], function (err, rows) {
+
+		if (err) {
+			res.status(400).send(err.toString());
+			return;
+		}
+
+		db.query('DELETE FROM Session WHERE accountId = ?;', [id], function (err, rows) {
+
+			res.send({
+				result: 'Account was deleted'
+			});
+
+		});
+
+	});
+
+});
 
 
 /**
@@ -39,30 +124,26 @@ router.post('/', function (req, res) {
 	var db = helper.getDB();
 	db.query('SELECT * FROM Account LIMIT 1;', function (err, rows) {
 
+		var role = 'MODERATOR';
 		if (rows.length == 0) { // First account
-
-			db.query(
-				'INSERT INTO Account(name, pw, role, createdAt) VALUES(?, ?, ?, ?)',
-				[account_name, account_pw, 'ADMIN', new Date()],
-				function (err, rows) {
-
-					if (err) {
-						res.status(400).send(err.toString());
-					} else {
-						res.send({
-							data: 'Account created'
-						});
-					}
-
-				}
-			);
-			return;
-
-		} else { // TODO: Normal account
-
-			res.status(400).send('This API is not implemented.');
-
+			role = 'ADMIN';
 		}
+
+		db.query(
+			'INSERT INTO Account(name, pw, role, createdAt) VALUES(?, ?, ?, ?)',
+			[account_name, account_pw, role, new Date()],
+			function (err, rows) {
+
+				if (err) {
+					res.status(400).send(err.toString());
+				} else {
+					res.send({
+						result: 'Account created'
+					});
+				}
+
+			}
+		);
 
 	});
 
@@ -109,7 +190,7 @@ router.post('/signin', function (req, res) {
 
 					// Done
 					res.send({
-						data: 'Signed in.',
+						result: 'Signed in.',
 						sessionId: session_id
 					});
 
@@ -123,22 +204,21 @@ router.post('/signin', function (req, res) {
 
 
 /**
- * GET /api/articles/:id - Get the article as single
+ * POST /cp-api/accounts/signout - Sign out
  */
-router.get('/:id', function (req, res) {
+router.post('/signout', function (req, res) {
 
-	var article_id = req.params.id;
-	if (exampleArticles[article_id] == null) {
-		res.sendStatus(404);
+	if (req.headers.sessionToken == null) {
+		res.status(400).send('Invalid session.');
 		return;
 	}
 
-	// Get the article
-	var article_data = exampleArticles[article_id];
+	// Check the account
+	var db = helper.getDB();
+	db.query('DELETE FROM Session WHERE id = ?;', [req.headers.sessionToken], function (err, rows) {
 
-	// Send a response
-	res.send({
-		article: article_data
+		res.send('Signed out');
+
 	});
 
 });

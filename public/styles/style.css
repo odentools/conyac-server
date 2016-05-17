@@ -7,6 +7,12 @@
  * General
  */
 
+/* Common */
+
+small.sub {
+	color: #888888;
+}
+
 /* Page */
 
 body {
@@ -43,12 +49,13 @@ body {
 
 /* Section Header */
 
-md-toolbar.section-header, md-toolbar.section-header {
+md-toolbar.section-header {
 	background-color: transparent;
 	color: #222222;
+	margin-top: 5px;
 }
 
-md-toolbar.section-header, md-toolbar.section-header md-icon {
+md-toolbar.section-header md-icon {
 	color: #222222;
 	margin-top: -5px;
 	margin-right: 10px;

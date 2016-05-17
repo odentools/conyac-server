@@ -1,0 +1,39 @@
+<!-- AccountsPageCtrl -->
+<div class="dashboard" layout="column" flex>
+	<div flex layout="column" ng-cloak>
+
+		<md-toolbar class="section-header">
+			<div class="md-toolbar-tools">
+				<h2>
+					<span><md-icon>supervisor_account</md-icon>&nbsp;Account Manager</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-href="#/accounts/new" class="md-raised md-primary pull-right">Create Account</md-button>
+			</div>
+		</md-toolbar>
+
+		<md-content layout="row" layout-xs="column" style="background-color: inherit;">
+
+			<md-card flex ng-repeat="account in accounts">
+				<md-card-content>
+					<h3>
+						<md-icon>account_circle</md-icon>&nbsp;&nbsp;
+						{{account.name}}&nbsp;&nbsp;
+						<small class="sub">(ID: {{account.id}})</small>
+					</h3>
+					<p>
+						Role: {{account.role}}
+					</p>
+				</md-card-content>
+				<md-card-actions layout="row" layout-align="end center">
+					<md-button ng-click="deleteAccount(account.id)" class="md-icon-button" aria-label="Delete this account">
+						<md-icon>delete</md-icon>
+					</md-button>
+				</md-card-actions>
+			</md-card>
+
+		</md-content>
+
+	</div>
+</div>
+<!---->

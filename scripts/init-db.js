@@ -27,7 +27,9 @@ var SQL_QUERIES = [
 		id VARCHAR(64) NOT NULL PRIMARY KEY,\
 		accountId INT NOT NULL,\
 		createdAt DATETIME NOT NULL,\
-		FOREIGN KEY (accountId) REFERENCES Account(id)\
+		FOREIGN KEY (accountId) REFERENCES Account(id),\
+		INDEX (id),\
+		INDEX (accountId)\
 	);',
 
 	// Device Type
@@ -53,8 +55,7 @@ var SQL_QUERIES = [
 		name TEXT,\
 		code TEXT,\
 		createdAccountId INT,\
-		createdAt DATETIME NOT NULL,\
-		FOREIGN KEY (apiTokenId) REFERENCES ApiToken(id)\
+		createdAt DATETIME NOT NULL\
 	);',
 
 	// Relation for API Hook and API Token

@@ -25,6 +25,14 @@ angular.module('ConyacControlPanelApp',
 			templateUrl: 'templates/devices.html',
 			controller: 'DashboardPageCtrl'
 		}).
+		when('/accounts', {
+			templateUrl: 'templates/accounts.html',
+			controller: 'AccountsPageCtrl'
+		}).
+		when('/accounts/new', {
+			templateUrl: 'templates/account-editor.html',
+			controller: 'AccountEditorPageCtrl'
+		}).
 		when('/tokens', {
 			templateUrl: 'templates/tokens.html',
 			controller: 'TokensPageCtrl'
@@ -47,6 +55,8 @@ angular.module('ConyacControlPanelApp',
 // Configuration for Angular Resource
 .config(function ($httpProvider) {
 
+	$httpProvider.interceptors.push('authHttpRequestInterceptor');
+
 })
 
 // Configuration for Angular Material
@@ -67,23 +77,89 @@ angular.module('ConyacControlPanelApp',
 
 
 // Controller for Site
-.controller('WholeCtrl', ['$scope', '$location', '$mdSidenav',
-function($scope, $location, $mdSidenav) {
+.controller('SessionCtrl', ['$scope', '$window', '$location', '$mdSidenav', 'Accounts', 'SessionService',
+function($scope, $window, $location, $mdSidenav, Accounts, SessionService) {
+
+	// Current Account
+	$scope.account = null;
 
 
+	/**
+	 * Toggle the Sidebar
+	 */
 	$scope.toggleMenu = function () {
+
 		$mdSidenav('left').toggle();
+
+	};
+
+
+	/**
+	 * Get the current account
+	 * @return {[type]} [description]
+	 */
+	$scope.getCurrentAccount = function () {
+
+		if (!SessionService.getToken()) return;
+
+		Accounts.getCurrentAccount(function (account) { // Successful
+
+			$scope.account = account;
+
+		}, function () { // Failed
+
+			console.log('Could not get the current account.');
+			$scope.account = null;
+
+		});
+
+	};
+
+
+	/**
+	 * Sign out
+	 */
+	$scope.signOut = function() {
+
+		Accounts.signOut(function (result) {
+
+			$scope.account = {};
+			SessionService.saveToken(null);
+			$window.location = '/';
+
+		}, function (err, status) {
+
+			$scope.account = {};
+			SessionService.saveToken(null);
+			$window.location = '/';
+
+		});
+
 	};
 
 
 	// ----
 
+	$scope.getCurrentAccount();
 
 	$scope.$watch(function () {
+
+		$scope.locationPath = $location.path();
 		return $location.path();
-	}, function (path) {
-		$scope.locationPath = path;
+
+	}, function (old_path, path) {
+
+		if (!SessionService.getToken() && old_path != '/signin' && old_path != path && !path.match(/^\/signin/)) {
+			// Redirect to sign-in page
+			$window.location = '/#/signin';
+		}
+
 	});
+
+	if (!SessionService.getToken() && !$location.path().match(/^\/signin/)) {
+		// Redirect to sign-in page
+		$window.location = '/#/signin';
+	}
 
 }])
 
@@ -92,17 +168,6 @@ function($scope, $location, $mdSidenav) {
 .controller('DashboardPageCtrl', ['$scope', '$location', '$localStorage', 'Accounts',
 function($scope, $location, $localStorage, Accounts) {
 
-	// Local storage
-	$scope.storage = $localStorage;
-
-	// ----
-
-
-	// Check the session
-	if ($scope.storage.conyacSessionId == null) {
-		$location.path('/signin');
-	}
-
 }])
 
 
@@ -110,16 +175,126 @@ function($scope, $location, $localStorage, Accounts) {
 .controller('TokensPageCtrl', ['$scope', '$location', '$localStorage', 'Accounts',
 function($scope, $location, $localStorage, Accounts) {
 
-	// Local storage
-	$scope.storage = $localStorage;
+}])
+
+
+// Controller for Accounts Page
+.controller('AccountsPageCtrl', ['$scope', '$mdDialog', 'Accounts',
+function($scope, $mdDialog, Accounts) {
+
+	// Accounts
+	$scope.accounts = [];
+
+
+	/**
+	 * Get the accounts list
+	 */
+	$scope.getAccounts = function () {
+
+		Accounts.get(function (items) {
+			$scope.accounts = items;
+		}, function (err, status) {
+			console.log(err);
+		});
+
+	};
+
+
+	/**
+	 * Delete the account
+	 * @param  {Number} id Account ID
+	 */
+	$scope.deleteAccount = function (id) {
+
+		// Show an dialog
+		var dialog = $mdDialog.confirm({
+			title: 'Deletion of Account (ID: ' + id + ')',
+			textContent: 'Would you delete this account?',
+			ok: 'OK',
+			cancel: 'CANCEL'
+		});
+
+		$mdDialog.show(dialog).then(function() { // OK
+
+			// Delete the account
+			Accounts.delete({
+				id: id
+			}, function (data) { // Successful
+
+				// Show a message
+				dialog = $mdDialog.alert({
+					title: 'Deletion of Account',
+					textContent: data.result,
+					ok: 'OK'
+				});
+				$mdDialog.show(dialog);
+
+				// Reload
+				$scope.getAccounts();
+
+			}, function (err, status) { // Failed
+
+				// Show a message
+				dialog = $mdDialog.alert({
+					title: 'Deletion of Account',
+					textContent: 'Error: ' + err.data,
+					ok: 'OK'
+				});
+				$mdDialog.show(dialog);
+
+			});
+
+		});
+
+	};
+
 
 	// ----
 
+	$scope.getAccounts();
 
-	// Check the session
-	if ($scope.storage.conyacSessionId == null) {
-		$location.path('/signin');
-	}
+}])
+
+
+// Controller for Account Editor Page
+.controller('AccountEditorPageCtrl', ['$scope', '$location', '$mdDialog', 'Accounts',
+function($scope, $location, $mdDialog, Accounts) {
+
+	$scope.account = {};
+
+
+	/**
+	 * Create or Save the account
+	 * @param  {Object} account Account data
+	 */
+	$scope.send = function (account) {
+
+		// Make a dialog
+		var dialog = $mdDialog.alert({
+			title: 'Creation of Account',
+			ok: 'OK'
+		});
+
+		// Create the account
+		Accounts.create(account, function (data) { // Successful
+
+			// Show a message
+			dialog.textContent(data.result);
+			$mdDialog.show(dialog);
+
+			// Redirect
+			$location.path('/accounts');
+
+		}, function (err, status) { // Failed
+
+			// Show a message
+			dialog.textContent('Error: ' + err.data);
+			$mdDialog.show(dialog);
+
+		});
+
+	};
+
 
 }])
 
@@ -141,13 +316,11 @@ function($scope, $location, $mdDialog, Accounts) {
 				// Show an dialog
 				var dialog = $mdDialog.alert({
 					title: 'Create account',
-					textContent: data.data,
+					textContent: data.result,
 					ok: 'OK'
 				});
 
-				$mdDialog
-				.show(dialog)
-				.finally(function() { // On dialog closed
+				$mdDialog.show(dialog).finally(function() { // On dialog closed
 					// Redirect to top page
 					$location.path('/');
 				});
@@ -166,8 +339,8 @@ function($scope, $location, $mdDialog, Accounts) {
 
 
 // Controller for Signin Page
-.controller('SigninPageCtrl', ['$scope', '$location', '$localStorage', 'Accounts',
-function($scope, $location, $localStorage, Accounts) {
+.controller('SigninPageCtrl', ['$scope', '$window', '$localStorage', 'Accounts', 'SessionService',
+function($scope, $window, $localStorage, Accounts, SessionService) {
 
 	// Local storage
 	$scope.$storage = $localStorage;
@@ -184,8 +357,8 @@ function($scope, $location, $localStorage, Accounts) {
 		Accounts.signIn(account,
 			function(data) { // Successful
 
-				$scope.$storage.conyacSessionId = data.sessionId;
-				$location.path('/');
+				SessionService.saveToken(data.sessionId);
+				$window.location = '/';
 
 			},
 			function(error, status) { // Failed
