@@ -18,15 +18,16 @@
 				<md-card-content>
 					<h3>
 						<md-icon>vpn_key</md-icon>&nbsp;&nbsp;
-						{{apiToken.name}}
+						{{apiToken.name}}&nbsp;&nbsp;&nbsp;&nbsp;
 						<small class="sub">(ID: {{apiToken.id}})</small>
 					</h3>
 					<p>
-						Created date: {{apiToken.createdAt | date : 'medium'}}<br/>
+						Created by {{apiToken.createdAccountName}} (ID: {{apiToken.createdAccountId}})
+						on {{apiToken.createdAt | date : 'medium'}}<br/>
 					</p>
 				</md-card-content>
 				<md-card-actions layout="row" layout-align="end center">
-					<md-button class="md-icon-button" aria-label="Delete this token">
+					<md-button ng-click="deleteApiToken(apiToken.id)" class="md-icon-button" aria-label="Delete this token">
 						<md-icon>delete</md-icon>
 					</md-button>
 				</md-card-actions>

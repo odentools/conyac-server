@@ -15,7 +15,11 @@ var crypto = require('crypto'), helper = require(__dirname + '/../../models/help
 router.get('/', function (req, res) {
 
 	var db = helper.getDB();
-	db.query('SELECT * FROM ApiToken;', function (err, rows) {
+	db.query('SELECT ApiToken.*, Account.name AS createdAccountName FROM ApiToken,\
+	Account WHERE ApiToken.createdAccountId = Account.id;',
+		function (err, rows) {
+
+		if (err) throw err;
 
 		var tokens = [];
 
