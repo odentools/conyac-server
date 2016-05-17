@@ -42,11 +42,13 @@ var SQL_QUERIES = [
 	// API Token
 	'CREATE TABLE ApiToken (\
 		id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,\
-		name TEXT,\
+		name VARCHAR(20),\
 		token VARCHAR(64) NOT NULL,\
 		createdAccountId INT,\
 		createdAt DATETIME NOT NULL,\
-		FOREIGN KEY (createdAccountId) REFERENCES Account(id)\
+		FOREIGN KEY (createdAccountId) REFERENCES Account(id),\
+		UNIQUE (name),\
+		UNIQUE (token)\
 	);',
 
 	// API Hook

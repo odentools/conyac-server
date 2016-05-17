@@ -23,6 +23,7 @@ app.use(require(__dirname + '/routes/_hook'));
 
 // Routes
 app.use('/api/accounts', require(__dirname + '/routes/api/accounts'));
+app.use('/api/tokens', require(__dirname + '/routes/api/tokens'));
 
 // Start the server
 var server = app.listen(3000, function () {

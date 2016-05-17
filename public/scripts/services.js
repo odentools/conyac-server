@@ -92,6 +92,33 @@ angular.module('ConyacServerAPI', ['ngResource', 'ngStorage'])
 
 
 /**
+ * API Tokens API
+ */
+.factory('APITokens', ['$resource', function($resource) {
+
+	return $resource(
+		'/api/tokens/:id',
+		{
+			id: '@id'
+		},
+		{
+			get: {
+				method: 'GET',
+				isArray: true
+			},
+			find: {
+				method: 'GET'
+			},
+			create: {
+				method: 'POST'
+			}
+		}
+	);
+
+}])
+
+
+/**
  * Interceptor for All Requests
  */
 .factory('authHttpRequestInterceptor', ['SessionService', function (SessionService) {

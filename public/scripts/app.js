@@ -37,6 +37,10 @@ angular.module('ConyacControlPanelApp',
 			templateUrl: 'templates/tokens.html',
 			controller: 'TokensPageCtrl'
 		}).
+		when('/tokens/new', {
+			templateUrl: 'templates/token-editor.html',
+			controller: 'TokenEditorPageCtrl'
+		}).
 		when('/signin', {
 			templateUrl: 'templates/signin.html',
 			controller: 'SigninPageCtrl'
@@ -109,7 +113,14 @@ function($scope, $window, $location, $mdSidenav, Accounts, SessionService) {
 		}, function () { // Failed
 
 			console.log('Could not get the current account.');
+
 			$scope.account = null;
+			SessionService.saveToken(null);
+
+			if (!$location.path().match(/^\/signin/)) {
+				// Redirect to sign-in page
+				$window.location = '/#/signin';
+			}
 
 		});
 
@@ -172,8 +183,121 @@ function($scope, $location, $localStorage, Accounts) {
 
 
 // Controller for Tokens Page
-.controller('TokensPageCtrl', ['$scope', '$location', '$localStorage', 'Accounts',
-function($scope, $location, $localStorage, Accounts) {
+.controller('TokensPageCtrl', ['$scope', '$mdDialog', 'APITokens',
+function($scope, $mdDialog, APITokens) {
+
+	// API Tokens
+	$scope.apiTokens = [];
+
+
+	/**
+	 * Get the item list
+	 */
+	$scope.getApiTokens = function () {
+
+		APITokens.get(function (items) {
+			$scope.apiTokens = items;
+		}, function (err, status) {
+			console.log(err);
+		});
+
+	};
+
+
+	/**
+	 * Delete the item
+	 * @param  {Number} id Account ID
+	 */
+	$scope.deleteApiToken = function (id) {
+
+		// Show an dialog
+		var dialog = $mdDialog.confirm({
+			title: 'Deletion of API Token (ID: ' + id + ')',
+			textContent: 'Would you delete this token?',
+			ok: 'OK',
+			cancel: 'CANCEL'
+		});
+
+		$mdDialog.show(dialog).then(function() { // OK
+
+			// Delete the item
+			APITokens.delete({
+				id: id
+			}, function (data) { // Successful
+
+				// Show a message
+				dialog = $mdDialog.alert({
+					title: 'Deletion of API Token',
+					textContent: data.result,
+					ok: 'OK'
+				});
+				$mdDialog.show(dialog);
+
+				// Reload
+				$scope.getApiTokens();
+
+			}, function (err, status) { // Failed
+
+				// Show a message
+				dialog = $mdDialog.alert({
+					title: 'Deletion of API Token',
+					textContent: 'Error: ' + err.data,
+					ok: 'OK'
+				});
+				$mdDialog.show(dialog);
+
+			});
+
+		});
+
+	};
+
+
+	// ----
+
+	$scope.getApiTokens();
+
+}])
+
+
+// Controller for Token Editor Page
+.controller('TokenEditorPageCtrl', ['$scope', '$location', '$mdDialog', 'APITokens',
+function($scope, $location, $mdDialog, APITokens) {
+
+	$scope.apiToken = {};
+	$scope.errorText = null;
+
+
+	/**
+	 * Create or Save the api token
+	 * @param  {Object} api_token APIToken data
+	 */
+	$scope.send = function (api_token) {
+
+		// Create the API Token
+		APITokens.create(api_token, function (data) { // Successful
+
+			// Show a message
+			$scope.errorText = null;
+			var dialog = $mdDialog.alert({
+				title: 'Creation of API Token',
+				ok: 'OK'
+			});
+			dialog.textContent(data.result);
+			$mdDialog.show(dialog);
+
+			// Done
+			$scope.apiToken = data;
+
+		}, function (err, status) { // Failed
+
+			// Show the error
+			$scope.errorText = err.data || 'Could not create the item.';
+
+		});
+
+	};
+
 
 }])
 
@@ -261,6 +385,7 @@ function($scope, $mdDialog, Accounts) {
 function($scope, $location, $mdDialog, Accounts) {
 
 	$scope.account = {};
+	$scope.errorText = null;
 
 
 	/**
@@ -269,16 +394,15 @@ function($scope, $location, $mdDialog, Accounts) {
 	 */
 	$scope.send = function (account) {
 
-		// Make a dialog
-		var dialog = $mdDialog.alert({
-			title: 'Creation of Account',
-			ok: 'OK'
-		});
-
 		// Create the account
 		Accounts.create(account, function (data) { // Successful
 
 			// Show a message
+			$scope.errorText = null;
+			var dialog = $mdDialog.alert({
+				title: 'Creation of Account',
+				ok: 'OK'
+			});
 			dialog.textContent(data.result);
 			$mdDialog.show(dialog);
 
@@ -287,9 +411,8 @@ function($scope, $location, $mdDialog, Accounts) {
 
 		}, function (err, status) { // Failed
 
-			// Show a message
-			dialog.textContent('Error: ' + err.data);
-			$mdDialog.show(dialog);
+			// Show the error
+			$scope.errorText = err.data || 'Could not create the item.';
 
 		});
 
