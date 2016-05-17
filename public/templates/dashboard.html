@@ -1,0 +1,79 @@
+<!-- DashboardPageCtrl -->
+<div class="dashboard" layout="column" flex>
+
+	<div flex layout="column" ng-cloak>
+
+		<md-toolbar class="section-header">
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>Notifications</span>
+				</h2>
+			</div>
+		</md-toolbar>
+		<md-content class="transparent-content" flex layout="column">
+
+			<md-list>
+				<md-subheader class="md-no-sticky">New devices available</md-subheader>
+				<md-list-item ng-click="something()">
+					<md-icon>directions_car</md-icon>
+					<p>RCCar / rccar0 &nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp; Would you allow this device?</p>
+				</md-list-item>
+			</md-list>
+
+		</md-content>
+
+	</div>
+
+	<div flex layout="column" ng-cloak>
+
+		<md-toolbar class="section-header">
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>Online Devices</span>
+				</h2>
+			</div>
+		</md-toolbar>
+		<md-content layout="row" layout-xs="column" style="background-color: inherit;">
+
+			<md-card flex style="border-bottom: 2px solid green;">
+				<md-card-content>
+					<h3><md-icon>directions_car</md-icon>&nbsp;&nbsp;RCCar / rccar0</h3>
+					<p>
+						Last connected: Just Online
+					</p>
+				</md-card-content>
+				<md-card-actions layout="row" layout-align="end center">
+					<md-button class="md-icon-button" aria-label="Edit this device">
+						<md-icon>edit</md-icon>
+					</md-button>
+					<md-button class="md-icon-button" aria-label="Explore commands of this device">
+						<md-icon>touch_app</md-icon>
+					</md-button>
+				</md-card-actions>
+			</md-card>
+
+			<md-card flex style="border-bottom: 2px solid green;">
+				<md-card-content>
+					<h3><md-icon>directions_car</md-icon>&nbsp;&nbsp;RCCar / rccar1</h3>
+					<p>
+						Last connected: Just Online
+					</p>
+				</md-card-content>
+				<md-card-actions layout="row" layout-align="end center">
+					<md-button class="md-icon-button" aria-label="Edit this device">
+						<md-icon>edit</md-icon>
+					</md-button>
+					<md-button class="md-icon-button" aria-label="Explore commands of this device">
+						<md-icon>touch_app</md-icon>
+					</md-button>
+				</md-card-actions>
+			</md-card>
+
+		</md-content>
+
+	</div>
+
+	</div>
+
+</div>
+<!---->

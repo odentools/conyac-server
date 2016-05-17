@@ -1,0 +1,83 @@
+/**
+ * Main Stylesheet for Frontend Application
+ */
+
+
+/**
+ * General
+ */
+
+/* Page */
+
+body {
+	background-color: #f0f0f0;
+}
+
+/* Sidebar */
+
+.sidebar md-content {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.sidebar md-list {
+	padding: 0 0 0 0;
+}
+
+.sidebar md-list md-list-item {
+}
+
+.sidebar md-list md-list-item.active {
+	color: white;
+	background: rgb(96,125,139);
+}
+
+.sidebar md-list md-list-item.active md-icon {
+	color: white;
+}
+
+.sidebar md-list md-list-item md-icon {
+	margin-bottom: 4px;
+	margin-right: 15px;
+}
+
+/* Section Header */
+
+md-toolbar.section-header, md-toolbar.section-header {
+	background-color: transparent;
+	color: #222222;
+}
+
+md-toolbar.section-header, md-toolbar.section-header md-icon {
+	color: #222222;
+	margin-top: -5px;
+	margin-right: 10px;
+}
+
+/* Content */
+md-content.transparent-content {
+	background-color: transparent;
+}
+
+/* Card*/
+
+md-card md-card-content p {
+	color: #555555;
+}
+
+
+/**
+ * Dashboard Page
+ */
+
+.dashboard .md-subheader.md-default-theme, .md-subheader {
+	background-color: transparent;
+}
+
+.dashboard md-list-item {
+	background-color: white;
+}
+
+.dashboard md-list-item .md-list-item-inner md-icon {
+	margin-top: 8px !important;
+}

@@ -1,0 +1,38 @@
+{
+  "name": "conyac-server",
+  "version": "0.0.1",
+  "authors": [
+    "OdenTools"
+  ],
+  "moduleType": [
+    "es6",
+    "globals",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "angularjs#~1.5.3",
+    "angular-animate": "~1.5.3",
+    "angular-loading-bar": "~0.9.0",
+    "angular-material": "~1.0.8",
+    "angular-resource": "~1.5.5",
+    "angular-route": "~1.5.3",
+    "angular-websocket": "1.0.14",
+    "font-awesome": "~4.5.0",
+    "ngstorage": "~0.3.10"
+  },
+  "resolutions": {
+    "angular": "~1.5.3"
+  },
+  "main": "server.js",
+  "keywords": [
+    "conyac"
+  ],
+  "homepage": "https://github.com/odentools/conyac-server"
+}

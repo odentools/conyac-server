@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+		<meta charset="utf-8" />
+		<title>Control Panel - Conyac Server</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- Stylesheets-->
+		<link rel="stylesheet" href="/angular-loading-bar/build/loading-bar.min.css" />
+		<link rel="stylesheet" href="/angular-material/angular-material.min.css" />
+		<link rel="stylesheet" href="/styles/style.css" />
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+		<!-- Library - AngularJS -->
+		<script src="/angular/angular.js"></script>
+		<script src="/angular-route/angular-route.min.js"></script>
+		<script src="/angular-aria/angular-aria.min.js"></script>
+		<script src="/angular-animate/angular-animate.min.js"></script>
+		<script src="/angular-messages/angular-messages.min.js"></script>
+		<script src="/angular-resource/angular-resource.min.js"></script>
+		<!-- Library - ngStorage -->
+		<script src="/ngstorage/ngStorage.min.js"></script>
+		<!-- Library - Angular Loading Bar -->
+		<script src="/angular-loading-bar/build/loading-bar.min.js"></script>
+		<!-- Library - Angular Material -->
+		<script src="/angular-material/angular-material.min.js"></script>
+
+		<!-- Application -->
+		<script src="/scripts/services.js"></script>
+		<script src="/scripts/app.js"></script>
+
+	</head>
+	<body ng-app="ConyacControlPanelApp" ng-controller="WholeCtrl" ng-cloak layout="column" layout-align="start stretch">
+
+		<div layout="column">
+
+			<md-toolbar>
+				<div class="md-toolbar-tools">
+					<md-button class="md-icon-button" aria-label="Open a menu" ng-click="toggleMenu()">
+						<md-icon>menu</md-icon>
+					</md-button>
+					<a ng-href="/"><span>Control Panel</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<small>by <a href="https://github.com/odentools/conyac-server" target="_blank">Conyac Server</a></small>
+				</div>
+			</md-toolbar>
+
+		</div>
+
+		<div layout="row" layout-align="start stretch">
+
+			<!-- Sidebar -->
+			<md-sidenav class="sidebar md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
+				<md-toolbar class="md-theme-indigo md-hue-2">
+					<h1 class="md-toolbar-tools">Menu</h1>
+				</md-toolbar>
+				<md-content layout-padding>
+					<md-list>
+
+						<md-list-item ng-href="/#/" ng-class="{active : locationPath == '/dashboard'}">
+							<p><md-icon>home</md-icon> Dashboard</p>
+						</md-list-item>
+
+						<md-list-item ng-href="/#/devices" ng-class="{active : locationPath == '/devices'}">
+							<p><md-icon>developer_board</md-icon> Device Manager</p>
+						</md-list-item>
+
+						<md-list-item ng-href="/#/accounts" ng-class="{active : locationPath == '/accounts'}">
+							<p><md-icon>supervisor_account</md-icon> Account Manager</p>
+						</md-list-item>
+
+						<md-list-item ng-href="/#/tokens" ng-class="{active : locationPath == '/tokens'}">
+							<p><md-icon>vpn_key</md-icon> API Tokens</p>
+						</md-list-item>
+
+						<md-list-item ng-href="/#/hooks" ng-class="{active : locationPath == '/hooks'}">
+							<p><md-icon>code</md-icon> API Hooks</p>
+						</md-list-item>
+
+					</md-list>
+				</md-content>
+			</md-sidenav>
+			<!---->
+
+			<div flex ng-view></div>
+
+		</div>
+
+	</body>
+</html>

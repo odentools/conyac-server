@@ -1,0 +1,33 @@
+<!-- SigninPageCtrl -->
+<div layout="column">
+
+	<md-card>
+
+		<md-card-content>
+
+			<h2>Sign In to Control Panel</h2>
+
+			<md-input-container class="md-block">
+				<label>Name - e.g. admin</label>
+				<input ng-model="account.name">
+			</md-input-container>
+
+			<md-input-container class="md-block">
+				<label>Password</label>
+				<input type="password" ng-model="account.pw">
+			</md-input-container>
+
+			<p style="color: red;" ng-show="errorText != null">
+				Error: {{errorText}}
+			</p>
+
+		</md-card-content>
+
+		<md-card-actions layout="row" layout-align="end center">
+			<md-button ng-click="signin(account)" class="md-raised md-primary">Sign In</md-button>
+		</md-card-actions>
+
+	</md-card>
+
+</div>
+<!---->
