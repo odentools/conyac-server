@@ -1,0 +1,93 @@
+<!-- DeviceEditorPageCtrl -->
+<div flex layout="column">
+	<div flex layout="column" ng-cloak>
+
+		<md-toolbar class="section-header">
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<md-icon>developer_board</md-icon>&nbsp;
+						<a ng-href="#/devices">Device Manager</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+						<span ng-if="device.id == null">Register</span>
+						<span ng-if="device.id != null">Edit</span>
+					</span>
+				</h2>
+				<span flex></span>
+			</div>
+		</md-toolbar>
+
+		<md-content layout="row" style="background-color: inherit;">
+			<md-card flex>
+
+				<md-card-content>
+
+					<!-- Captions for New Item -->
+					<div ng-if="device.id == null">
+
+						<h2>Register Device</h2>
+
+						<p>
+							To register a device, you can choose a way from 3 ways.<br/>
+							<ul>
+								<li>Pre Registration on this page</li>
+								<li>On-demand Approval Registration</li>
+								<li>On-demand Full Registration</li>
+							</ul>
+
+							There are detailed descriptions on our wiki:<br/>
+							<a href="https://github.com/odentools/conyac-server/wiki/Operation-Add-Devices" target="_blank">https://github.com/odentools/conyac-server/wiki/Operation-Add-Devices</a>
+						</p>
+
+						<br style="margin-bottom: 1rem;" />
+						<hr/>
+						<br style="margin-bottom: 2rem;" />
+
+						<h2>Pre Registration</h2>
+
+					</div>
+
+					<div ng-if="device.token != null && device.id != null">
+						<h2>Register Device</h2>
+						<p>
+							Device Token for {{device.name}} has been created.<br/><br/>
+							Please set the following token string to that device.
+							You can't view the token again.<br/></br/>
+						</p>
+					</div>
+					<!---->
+
+					<!-- Captions for Existing Item -->
+					<div ng-if="device.token == null && device.id != null">
+						<h2>Edit the {{device.name}}&nbsp;&nbsp;&nbsp;(ID: {{device.id}})</h2>
+					</div>
+					<!---->
+
+					<br />
+
+					<md-input-container class="md-block" ng-if="device.token == null">
+						<label>Name&nbsp;&nbsp;-&nbsp;&nbsp;Please fill the easily identifiable name</label>
+						<input ng-model="device.name" placeholder="e.g. signage-0">
+					</md-input-container>
+
+					<md-input-container class="md-block" ng-if="device.token != null">
+						<label>Device Token for {{device.name}}</label>
+						<input readonly="true" value="{{device.token}}">
+					</md-input-container>
+
+					<p style="color: red;" ng-show="errorText != null">
+						Error: {{errorText}}
+					</p>
+				</md-card-content>
+
+				<md-card-actions layout="row" layout-align="end center">
+					<md-button ng-if="device.id == null" ng-click="send(device)" class="md-raised md-primary">REGISTER</md-button>
+					<md-button ng-if="device.token == null && device.id != null" ng-click="send(device)" class="md-raised md-primary">UPDATE</md-button>
+					<md-button ng-if="device.token != null && device.id != null" ng-href="/#/devices" class="md-raised md-primary">DONE</md-button>
+				</md-card-actions>
+
+			</md-card>
+		</md-content>
+
+	</div>
+</div>
+<!---->

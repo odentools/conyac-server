@@ -89,8 +89,10 @@ var SQL_QUERIES = [
 		commands TEXT,\
 		createdAt DATETIME NOT NULL,\
 		approvedAt DATETIME,\
+		approvedAccountId INT NOT NULL,\
 		lastConnectedAt DATETIME,\
-		FOREIGN KEY (deviceTypeId) REFERENCES DeviceType(id)\
+		FOREIGN KEY (deviceTypeId) REFERENCES DeviceType(id),\
+		FOREIGN KEY (approvedAccountId) REFERENCES Account(id)\
 	);',
 
 	// KVS for Device

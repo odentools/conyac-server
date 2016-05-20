@@ -1,0 +1,45 @@
+<!-- DevicesPageCtrl -->
+<div layout="column" flex>
+	<div flex layout="column" ng-cloak>
+
+		<md-toolbar class="section-header">
+			<div class="md-toolbar-tools">
+				<h2>
+					<span><md-icon>developer_board</md-icon>&nbsp;&nbsp;Device Manager</span>
+				</h2>
+				<span flex></span>
+				<md-button ng-href="#/devices/new" class="md-raised md-primary pull-right">Register Device</md-button>
+			</div>
+		</md-toolbar>
+
+		<md-content layout="row" layout-xs="column" style="background-color: inherit;">
+
+			<md-card flex="50" ng-repeat="device in devices" style="border-bottom: 2px solid green;">
+				<md-card-content>
+					<h3>
+						<md-icon>developer_board</md-icon>&nbsp;&nbsp;
+						{{device.name}}&nbsp;&nbsp;&nbsp;&nbsp;
+						<small class="sub">(ID: {{device.id}})</small>
+					</h3>
+					<p>
+						Created on {{device.createdAt | date : 'medium'}}<br/>
+						Approved by
+						<a ng-href="/#/accounts/{{device.approvedAccountId}}" target="_blank">{{device.approvedAccountName}} (ID: {{device.approvedAccountId}})</a>
+						on {{device.approvedAt | date : 'medium'}}<br/>
+					</p>
+				</md-card-content>
+				<md-card-actions layout="row" layout-align="end center">
+					<md-button ng-href="/#/devices/{{device.id}}" class="md-icon-button" aria-label="Edit this device">
+						<md-icon>edit</md-icon>
+					</md-button>
+					<md-button ng-click="deleteDevice(device.id)" class="md-icon-button" aria-label="Delete this device">
+						<md-icon>delete</md-icon>
+					</md-button>
+				</md-card-actions>
+			</md-card>
+
+		</md-content>
+
+	</div>
+</div>
+<!---->

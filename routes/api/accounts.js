@@ -90,7 +90,7 @@ router.delete('/:id', function (req, res) {
 		db.query('DELETE FROM Session WHERE accountId = ?;', [id], function (err, rows) {
 
 			res.send({
-				result: 'Account was deleted'
+				result: 'Account has been deleted'
 			});
 
 		});

@@ -72,6 +72,11 @@ md-card md-card-content p {
 	color: #555555;
 }
 
+md-card md-card-content a:link, md-card md-card-content a:visited {
+	color: #555555;
+	text-decoration: underline;
+}
+
 
 /**
  * Dashboard Page

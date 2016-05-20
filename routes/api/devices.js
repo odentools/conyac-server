@@ -1,5 +1,5 @@
 /**
- * Routes for /api/tokens
+* Routes for /api/devices
  */
 
 var express = require('express');
@@ -10,25 +10,25 @@ var crypto = require('crypto'), helper = require(__dirname + '/../../models/help
 
 
 /**
- * GET /api/tokens - Get a list of api tokens
+ * GET /api/devices - Get a list of the devices
  */
 router.get('/', function (req, res) {
 
 	var db = helper.getDB();
-	db.query('SELECT ApiToken.*, Account.name AS createdAccountName FROM ApiToken,\
-	Account WHERE ApiToken.createdAccountId = Account.id;',
+	db.query('SELECT Device.*, Account.name AS approvedAccountName FROM Device, \
+	Account WHERE Device.approvedAccountId = Account.id;',
 		function (err, rows) {
 
 		if (err) throw err;
 
-		var tokens = [];
+		var devices = [];
 
 		rows.forEach(function (item, i) {
-			delete item.token;
-			tokens.push(item);
+			delete item.deviceToken;
+			devices.push(item);
 		});
 
-		res.send(tokens);
+		res.send(devices);
 
 	});
 
@@ -36,7 +36,7 @@ router.get('/', function (req, res) {
 
 
 /**
- * GET /api/tokens/:id - Get the api token
+ * GET /api/devices/:id - Get the device
  */
 router.get('/:id', function (req, res) {
 
@@ -46,9 +46,9 @@ router.get('/:id', function (req, res) {
 		return;
 	}
 
-	// Get an item from the token id
+	// Get an item from the device id
 	var db = helper.getDB();
-	db.query('SELECT * FROM ApiToken WHERE id = ?;', [id], function (err, rows) {
+	db.query('SELECT * FROM Device WHERE id = ?;', [id], function (err, rows) {
 
 		if (err || rows.length == 0) {
 			res.status(400).send('Item was not found ' + id);
@@ -56,7 +56,7 @@ router.get('/:id', function (req, res) {
 		}
 
 		var item = rows[0];
-		delete item.token;
+		delete item.deviceToken;
 		res.send(item);
 
 	});
@@ -65,7 +65,7 @@ router.get('/:id', function (req, res) {
 
 
 /**
- * DELETE /api/tokens/:id - Delete the api token
+ * DELETE /api/devices/:id - Delete the device
  */
 router.delete('/:id', function (req, res) {
 
@@ -75,13 +75,13 @@ router.delete('/:id', function (req, res) {
 		return;
 	}
 
-	// Delete an item from the token id
+	// Delete an item from the id
 	var db = helper.getDB();
-	db.query('DELETE FROM ApiToken WHERE id = ?;', [id], function (err, rows) {
+	db.query('DELETE FROM Device WHERE id = ?;', [id], function (err, rows) {
 
 		var item = rows[0];
 		res.send({
-			result: 'API Token (ID: ' + id + ') has been deleted.'
+			result: 'Device (ID: ' + id + ') has been deleted.'
 		});
 
 	});
@@ -90,7 +90,7 @@ router.delete('/:id', function (req, res) {
 
 
 /**
- * POST /api/tokens - Add the api token
+ * POST /api/devices - Create the device
  */
 router.post('/', function (req, res) {
 
@@ -98,18 +98,19 @@ router.post('/', function (req, res) {
 
 	// Check the parameters
 	if (name == null || !name.match(/^[A-Za-z0-9_\-]+$/)) {
-		res.status(400).send('Available characters for name of API Token: A-Z, a-z, 0-9, underscore, hyphen');
+		res.status(400).send('Available characters for name of device: A-Z, a-z, 0-9, underscore, hyphen');
 		return;
 	}
 
-	// Make a hash string of the password
-	var api_token = 'APITOKEN_' + name + '_' + Math.random(999999) + '_' + new Date().toString();
-	api_token = crypto.createHash('sha256').update(api_token).digest('hex');
+	// Make a hash string of the device token
+	var device_token = 'DEVICETOKEN_' + name + '_' + Math.random(999999) + '_' + new Date().toString();
+	device_token = crypto.createHash('sha256').update(device_token).digest('hex');
 
 	// Insert to database
 	var db = helper.getDB();
-	db.query('INSERT INTO ApiToken (name, token, createdAccountId, createdAt) VALUES (?, ?, ?, ?);',
-	[name, api_token, req.headers.sessionAccountId, new Date()], function (err, result) {
+	var now = new Date();
+	db.query('INSERT INTO Device (name, deviceToken, createdAt, approvedAt, approvedAccountId) VALUES (?, ?, ?, ?, ?);',
+	[name, device_token, now, now, req.headers.sessionAccountId], function (err, result) {
 
 		if (err) {
 			res.status(400).send(err.toString());
@@ -119,9 +120,11 @@ router.post('/', function (req, res) {
 		res.send({
 			id: result.insertId,
 			name: name,
-			token: api_token,
-			createdAt: null,
-			result: 'API Token (ID: ' + result.insertId + ') has been created.'
+			token: device_token,
+			createdAt: now,
+			approvedAt: now,
+			approvedAccountId: req.headers.sessionAccountId,
+			result: 'Device (ID: ' + result.insertId + ') has been created.'
 		});
 
 	});
@@ -130,7 +133,7 @@ router.post('/', function (req, res) {
 
 
 /**
- * POST /api/tokens/id - Update the api token
+ * POST /api/devices/id - Update the device
  */
 router.post('/:id', function (req, res) {
 
@@ -139,14 +142,14 @@ router.post('/:id', function (req, res) {
 
 	// Check the parameters
 	if (name == null || !name.match(/^[A-Za-z0-9_\-]+$/)) {
-		res.status(400).send('Available characters for name of API Token: A-Z, a-z, 0-9, underscore, hyphen');
+		res.status(400).send('Available characters for name of device: A-Z, a-z, 0-9, underscore, hyphen');
 		return;
 	}
 
 	// Update on the database
 	var db = helper.getDB();
 	var now = new Date();
-	db.query('UPDATE ApiToken SET name = ? WHERE id = ?;',
+	db.query('UPDATE Device SET name = ? WHERE id = ?;',
 	[name, id], function (err, result) {
 
 		if (err) {
@@ -155,9 +158,9 @@ router.post('/:id', function (req, res) {
 		}
 
 		res.send({
-			id: result.id,
+			id: id,
 			name: name,
-			result: 'API Token (ID: ' + id + ') has been updated.'
+			result: 'Device (ID: ' + id + ') has been updated.'
 		});
 
 	});

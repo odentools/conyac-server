@@ -87,23 +87,23 @@
 				<md-content layout-padding>
 					<md-list>
 
-						<md-list-item ng-href="/#/" ng-class="{active : locationPath == '/dashboard'}">
+						<md-list-item ng-href="/#/" ng-class="{active : currentContent == 'dashboard'}">
 							<p><md-icon>home</md-icon> Dashboard</p>
 						</md-list-item>
 
-						<md-list-item ng-href="/#/devices" ng-class="{active : locationPath == '/devices'}">
+						<md-list-item ng-href="/#/devices" ng-class="{active : currentContent == 'devices'}">
 							<p><md-icon>developer_board</md-icon> Device Manager</p>
 						</md-list-item>
 
-						<md-list-item ng-href="/#/accounts" ng-class="{active : locationPath == '/accounts'}">
+						<md-list-item ng-href="/#/accounts" ng-class="{active : currentContent == 'accounts'}">
 							<p><md-icon>supervisor_account</md-icon> Account Manager</p>
 						</md-list-item>
 
-						<md-list-item ng-href="/#/tokens" ng-class="{active : locationPath == '/tokens'}">
+						<md-list-item ng-href="/#/tokens" ng-class="{active : currentContent == 'tokens'}">
 							<p><md-icon>vpn_key</md-icon> API Tokens</p>
 						</md-list-item>
 
-						<md-list-item ng-href="/#/hooks" ng-class="{active : locationPath == '/hooks'}">
+						<md-list-item ng-href="/#/hooks" ng-class="{active : currentContent == 'hooks'}">
 							<p><md-icon>code</md-icon> API Hooks</p>
 						</md-list-item>
 

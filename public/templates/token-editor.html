@@ -1,5 +1,5 @@
 <!-- TokenEditorPageCtrl -->
-<div flex class="dashboard" layout="column">
+<div flex layout="column">
 	<div flex layout="column" ng-cloak>
 
 		<md-toolbar class="section-header">
@@ -7,7 +7,9 @@
 				<h2>
 					<span>
 						<md-icon>vpn_key</md-icon>&nbsp;
-						<a ng-href="#/tokens">API Tokens</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;Create
+						<a ng-href="#/tokens">API Tokens</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+						<span ng-if="apiToken.id == null">Create</span>
+						<span ng-if="apiToken.id != null">Edit</span>
 					</span>
 				</h2>
 				<span flex></span>
@@ -15,24 +17,33 @@
 		</md-toolbar>
 
 		<md-content layout="row" style="background-color: inherit;">
-
 			<md-card flex>
+
 				<md-card-content>
-					<h2>Create API Token</h2>
 
-					<p ng-if="apiToken.token == null">
-						Create the API Token for a device.<br/><br/>
-					</p>
-
+					<!-- Captions for New Item -->
+					<div ng-if="apiToken.id == null || apiToken.token != null">
+						<h2>Create API Token</h2>
+						<p ng-if="apiToken.token == null">
+							Create the API Token for a device.<br/><br/>
+						</p>
+					</div>
 					<p ng-if="apiToken.token != null">
 						API Token for {{apiToken.name}} has been created.<br/><br/>
 						Please keep the following API Token string.
 						You can't view the token again.<br/></br/>
 					</p>
+					<!---->
+
+					<!-- Captions for Existing Item -->
+					<div ng-if="apiToken.token == null && apiToken.id != null">
+						<h2>Edit the {{apiToken.name}}&nbsp;&nbsp;&nbsp;(ID: {{apiToken.id}})</h2>
+					</div>
+					<!----->
 
 					<md-input-container class="md-block" ng-if="apiToken.token == null">
 						<label>Name&nbsp;&nbsp;-&nbsp;&nbsp;Please fill the easily identifiable name</label>
-						<input ng-model="apiToken.name" placeholder="e.g. signage-0">
+						<input ng-model="apiToken.name" placeholder="e.g. slack-0">
 					</md-input-container>
 
 					<md-input-container class="md-block" ng-if="apiToken.token != null">
@@ -43,14 +54,16 @@
 					<p style="color: red;" ng-show="errorText != null">
 						Error: {{errorText}}
 					</p>
+
 				</md-card-content>
+
 				<md-card-actions layout="row" layout-align="end center">
-					<md-button ng-if="apiToken.token == null" ng-click="send(apiToken)" class="md-raised md-primary">CREATE</md-button>
-					<md-button ng-if="apiToken.token != null" ng-href="/#/tokens" class="md-raised md-primary">DONE</md-button>
+					<md-button ng-if="apiToken.id == null" ng-click="send(apiToken)" class="md-raised md-primary">CREATE</md-button>
+					<md-button ng-if="apiToken.token == null && apiToken.id != null" ng-click="send(apiToken)" class="md-raised md-primary">UPDATE</md-button>
+					<md-button ng-if="apiToken.token != null && apiToken.id != null" ng-href="/#/tokens" class="md-raised md-primary">DONE</md-button>
 				</md-card-actions>
+
 			</md-card>
-
-
 		</md-content>
 
 	</div>

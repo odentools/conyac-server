@@ -1,5 +1,5 @@
 <!-- TokensPageCtrl -->
-<div class="dashboard" layout="column" flex>
+<div layout="column" flex>
 	<div flex layout="column" ng-cloak>
 
 		<md-toolbar class="section-header">
@@ -12,9 +12,9 @@
 			</div>
 		</md-toolbar>
 
-		<md-content layout="column" layout-xs="column" style="background-color: inherit;">
+		<md-content layout="row" layout-xs="column" style="background-color: inherit;">
 
-			<md-card flex ng-repeat="apiToken in apiTokens" style="border-bottom: 2px solid green;">
+			<md-card flex="50" ng-repeat="apiToken in apiTokens" style="border-bottom: 2px solid green;">
 				<md-card-content>
 					<h3>
 						<md-icon>vpn_key</md-icon>&nbsp;&nbsp;
@@ -22,11 +22,15 @@
 						<small class="sub">(ID: {{apiToken.id}})</small>
 					</h3>
 					<p>
-						Created by {{apiToken.createdAccountName}} (ID: {{apiToken.createdAccountId}})
+						Created by
+						<a ng-href="/#/accounts/{{apiToken.createdAccountId}}" target="_blank">{{apiToken.createdAccountName}} (ID: {{apiToken.createdAccountId}})</a>
 						on {{apiToken.createdAt | date : 'medium'}}<br/>
 					</p>
 				</md-card-content>
 				<md-card-actions layout="row" layout-align="end center">
+					<md-button ng-href="/#/tokens/{{apiToken.id}}" class="md-icon-button" aria-label="Edit this token">
+						<md-icon>edit</md-icon>
+					</md-button>
 					<md-button ng-click="deleteApiToken(apiToken.id)" class="md-icon-button" aria-label="Delete this token">
 						<md-icon>delete</md-icon>
 					</md-button>

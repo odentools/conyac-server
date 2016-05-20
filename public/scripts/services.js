@@ -92,7 +92,34 @@ angular.module('ConyacServerAPI', ['ngResource', 'ngStorage'])
 
 
 /**
- * API Tokens API
+ * Devices API
+ */
+.factory('Devices', ['$resource', function($resource) {
+
+	return $resource(
+		'/api/devices/:id',
+		{
+			id: '@id'
+		},
+		{
+			get: {
+				method: 'GET',
+				isArray: true
+			},
+			find: {
+				method: 'GET'
+			},
+			create: {
+				method: 'POST'
+			}
+		}
+	);
+
+}])
+
+
+/**
+ * APITokens API
  */
 .factory('APITokens', ['$resource', function($resource) {
 
