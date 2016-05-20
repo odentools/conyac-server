@@ -14,19 +14,30 @@
 
 		<md-content layout="row" layout-xs="column" style="background-color: inherit;">
 
-			<md-card flex="50" ng-repeat="device in devices" style="border-bottom: 2px solid green;">
+			<md-card flex="50" ng-repeat="device in devices" ng-class="{'status-active' : device.isConnected}">
 				<md-card-content>
 					<h3>
 						<md-icon>developer_board</md-icon>&nbsp;&nbsp;
 						{{device.name}}&nbsp;&nbsp;&nbsp;&nbsp;
 						<small class="sub">(ID: {{device.id}})</small>
 					</h3>
+
 					<p>
-						Created on {{device.createdAt | date : 'medium'}}<br/>
+						Created on {{device.createdAt | date : 'medium'}}
+					</p>
+					<p>
 						Approved by
 						<a ng-href="/#/accounts/{{device.approvedAccountId}}" target="_blank">{{device.approvedAccountName}} (ID: {{device.approvedAccountId}})</a>
-						on {{device.approvedAt | date : 'medium'}}<br/>
+						on {{device.approvedAt | date : 'medium'}}
 					</p>
+					<p>
+						Last Connected on
+						<span ng-if="device.lastConnectedAt == null">N/A</span>
+						<span ng-if="device.lastConnectedAt != null && !device.isConnected">{{device.lastConnectedAt | date : 'medium'}}</span>
+						<span ng-if="device.lastConnectedAt != null && device.isConnected">Just Now
+							<small>from {{device.lastConnectedAt | date : 'medium'}}, IP: {{device.ipAddress}}</small></span>
+					</p>
+
 				</md-card-content>
 				<md-card-actions layout="row" layout-align="end center">
 					<md-button ng-href="/#/devices/{{device.id}}" class="md-icon-button" aria-label="Edit this device">

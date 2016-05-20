@@ -27,6 +27,30 @@ module.exports = {
 
 		return dbCon;
 
+	},
+
+
+	/**
+	 * Get the IP address of Client
+	 * @param  {Object} req Request of Express.js
+	 * @return {String}     IP address
+	 */
+	getClientIPAddress(req) {
+
+		var ip_addr = null;
+		var forwarded_for = req.headers['x-forwarded-for'];
+		if (forwarded_for) {
+			var forwarded_ips = forwarded_for.split(',');
+			ip_addr = forwarded_ips[0];
+		}
+
+		if (!ip_addr) {
+			ip_addr = req.connection.remoteAddress;
+		}
+
+		return ip_addr;
+
 	}
+
 
 };

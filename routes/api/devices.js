@@ -5,9 +5,8 @@
 var express = require('express');
 var router = express.Router();
 
-var crypto = require('crypto'), helper = require(__dirname + '/../../models/helper'),
-	async = require('async');
-
+var crypto = require('crypto'),	async = require('async');
+var wsApi = require(__dirname + '/../_websocket-api'), helper = require(__dirname + '/../../models/helper');
 
 /**
  * GET /api/devices - Get a list of the devices
@@ -22,10 +21,23 @@ router.get('/', function (req, res) {
 		if (err) throw err;
 
 		var devices = [];
+		var now_time = new Date().getTime();
 
 		rows.forEach(function (item, i) {
+
 			delete item.deviceToken;
+
+			var ws_con = wsApi.getConnectionByDeviceId(item.id);
+			if (ws_con) {
+				item.isConnected = true;
+				item.ipAddress = ws_con.ipAddress;
+			} else {
+				item.isConnected = false;
+				item.ipAddress = null;
+			}
+
 			devices.push(item);
+
 		});
 
 		res.send(devices);
@@ -57,6 +69,16 @@ router.get('/:id', function (req, res) {
 
 		var item = rows[0];
 		delete item.deviceToken;
+
+		var ws_con = wsApi.getConnectionByDeviceId(item.id);
+		if (ws_con) {
+			item.isConnected = true;
+			item.ipAddress = ws_con.ipAddress;
+		} else {
+			item.isConnected = false;
+			item.ipAddress = null;
+		}
+
 		res.send(item);
 
 	});

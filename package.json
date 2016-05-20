@@ -22,7 +22,8 @@
     "body-parser": "^1.15.1",
     "bower": "^1.7.9",
     "express": "^4.13.4",
-    "mysql": "^2.10.2"
+    "mysql": "^2.10.2",
+    "ws": "^1.1.0"
   },
   "devDependencies": {
     "eslint": "^2.10.1",

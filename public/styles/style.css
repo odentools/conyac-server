@@ -77,6 +77,10 @@ md-card md-card-content a:link, md-card md-card-content a:visited {
 	text-decoration: underline;
 }
 
+md-card.status-active {
+	border-bottom: 2px solid green;
+}
+
 
 /**
  * Dashboard Page
