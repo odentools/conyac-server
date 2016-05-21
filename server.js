@@ -25,6 +25,7 @@ app.use(require(__dirname + '/routes/_hook'));
 // REST API
 app.use('/api/accounts', require(__dirname + '/routes/api/accounts'));
 app.use('/api/devices', require(__dirname + '/routes/api/devices'));
+app.use('/api/deviceTypes', require(__dirname + '/routes/api/deviceTypes'));
 app.use('/api/tokens', require(__dirname + '/routes/api/tokens'));
 var server = require('http').createServer(app);
 

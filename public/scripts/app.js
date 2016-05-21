@@ -37,6 +37,10 @@ angular.module('ConyacControlPanelApp',
 			templateUrl: 'templates/device-editor.html',
 			controller: 'DeviceEditorPageCtrl'
 		}).
+		when('/deviceTypes', {
+			templateUrl: 'templates/device-types.html',
+			controller: 'DeviceTypesPageCtrl'
+		}).
 		when('/tokens', {
 			templateUrl: 'templates/tokens.html',
 			controller: 'TokensPageCtrl'
@@ -520,6 +524,35 @@ function($scope, $routeParams, $location, $mdDialog, Devices) {
 		$scope.device.id = $routeParams.id;
 		$scope.getDevice($routeParams.id);
 	}
+
+}])
+
+
+// Controller for Device Type Manager Page
+.controller('DeviceTypesPageCtrl', ['$scope', '$mdDialog', 'DeviceTypes',
+function($scope, $mdDialog, DeviceTypes) {
+
+	// DeviceTypes
+	$scope.deviceTypes = [];
+
+
+	/**
+	 * Get the item list
+	 */
+	$scope.getDeviceTypes = function () {
+
+		DeviceTypes.get(function (items) {
+			$scope.deviceTypes = items;
+		}, function (err, status) {
+			console.log(err);
+		});
+
+	};
+
+
+	// ----
+
+	$scope.getDeviceTypes();
 
 }])
 

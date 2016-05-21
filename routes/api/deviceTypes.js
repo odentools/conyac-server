@@ -14,13 +14,13 @@ var wsApi = require(__dirname + '/../_websocket-api'), helper = require(__dirnam
 router.get('/', function (req, res) {
 
 	var db = helper.getDB();
-	db.query('SELECT Device.*, \
-	DeviceType.name AS deviceTypeName, DeviceType.baseName AS deviceTypeBaseName, \
-	Account.name AS approvedAccountName \
-	FROM Device, Account, DeviceType WHERE Device.approvedAccountId = Account.id AND Device.deviceTypeId = DeviceType.id;',
+	db.query('SELECT DeviceType.*, COUNT(*) AS numOfDevices FROM Device RIGHT JOIN DeviceType\
+	ON DeviceType.id = Device.deviceTypeID GROUP BY Device.deviceTypeId;',
 		function (err, rows) {
 
 		if (err) throw err;
+
+		console.log(rows);
 
 		var devices = [];
 		var now_time = new Date().getTime();
@@ -30,6 +30,7 @@ router.get('/', function (req, res) {
 			delete item.deviceToken;
 
 			var ws_con = wsApi.getConnectionByDeviceId(item.id);
+			item.typeName = 'AAA';
 			if (ws_con) {
 				item.isConnected = true;
 				item.ipAddress = ws_con.ipAddress;

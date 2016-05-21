@@ -18,10 +18,15 @@
 				<md-card-content>
 					<h3>
 						<md-icon>developer_board</md-icon>&nbsp;&nbsp;
-						{{device.name}}&nbsp;&nbsp;&nbsp;&nbsp;
+						<span title="{{device.deviceTypeName}} (ID: {{device.deviceTypeId}})">
+							{{device.deviceTypeBaseName}}
+						</span> / {{device.name}}&nbsp;&nbsp;&nbsp;&nbsp;
 						<small class="sub">(ID: {{device.id}})</small>
 					</h3>
 
+					<p>
+						Type: {{device.deviceTypeBaseName}} / {{device.deviceTypeName}} (ID: {{device.deviceTypeId}})
+					</p>
 					<p>
 						Created on {{device.createdAt | date : 'medium'}}
 					</p>

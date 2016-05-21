@@ -1,0 +1,44 @@
+<!-- DevicesPageCtrl -->
+<div layout="column" flex>
+	<div flex layout="column" ng-cloak>
+
+		<md-toolbar class="section-header">
+			<div class="md-toolbar-tools">
+				<h2>
+					<span><md-icon>developer_board</md-icon>&nbsp;&nbsp;Device Type Manager</span>
+				</h2>
+				<span flex></span>
+			</div>
+		</md-toolbar>
+
+		<md-content layout="row" layout-xs="column" style="background-color: inherit;">
+
+			<md-card flex="50" ng-repeat="deviceType in deviceTypes">
+				<md-card-content>
+					<h3>
+						<md-icon>developer_board</md-icon>&nbsp;&nbsp;
+						{{deviceType.name}}&nbsp;&nbsp;&nbsp;&nbsp;
+						<small class="sub">(ID: {{deviceType.id}})</small>
+					</h3>
+					<p>
+						Base Name: {{deviceType.baseName}}
+					</p>
+					<p>
+						Related Devices: <a ng-href="/#/devices?deviceType={{deviceType.id}}">{{deviceType.numOfDevices}} devices
+					</p>
+					<p>
+						Related ACLs: <a ng-href="/#/devices?deviceType={{deviceType.id}}">{{deviceType.numOfAcl}} acls
+					</p>
+				</md-card-content>
+				<md-card-actions layout="row" layout-align="end center">
+					<md-button ng-href="/#/deviceTypes/{{deviceType.id}}" class="md-icon-button" aria-label="Edit this device type">
+						<md-icon>edit</md-icon>
+					</md-button>
+				</md-card-actions>
+			</md-card>
+
+		</md-content>
+
+	</div>
+</div>
+<!---->

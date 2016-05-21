@@ -35,7 +35,8 @@ var SQL_QUERIES = [
 	// Device Type
 	'CREATE TABLE DeviceType (\
 		id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,\
-		name VARCHAR(20) NOT NULL UNIQUE,\
+		base_name VARCHAR(64) NOT NULL,\
+		name VARCHAR(64) NOT NULL UNIQUE,\
 		commands TEXT\
 	);',
 

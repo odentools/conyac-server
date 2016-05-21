@@ -2,7 +2,8 @@
 * WebSocket API
 */
 
-var url = require('url'), querystring = require('querystring');
+var url = require('url'), querystring = require('querystring'), crypto = require('crypto'),
+	jsonStableStringify = require('json-stable-stringify');
 var helper = require(__dirname + '/../models/helper');
 
 // Array for WebSocket Connections
@@ -110,6 +111,7 @@ module.exports = {
 			return;
 		}
 
+		// Find the device from the database
 		var db = helper.getDB();
 		db.query('SELECT * FROM Device WHERE deviceToken = ?;', [token], function (err, rows) {
 
@@ -125,7 +127,7 @@ module.exports = {
 			var device = rows[0];
 			ws.deviceId = device.id;
 
-			// Update the lastConnectedAt field of the database
+			// Update the lastConnectedAt field on the database
 			db.query('UPDATE Device SET lastConnectedAt = ? WHERE id = ?;', [new Date(), device.id],
 			function (err, result) {
 
@@ -149,6 +151,192 @@ module.exports = {
 		var self = module.exports;
 
 		console.log('WebSocket message received', message);
+
+		var data = {};
+		try {
+			data = JSON.parse(message);
+		} catch (e) {
+			console.warn('Unknown message', e.toString());
+		}
+
+		if (data.cmd == '_sendManifests') {
+			self._registerDeviceManifest(ws, ws.deviceId, data.commands, data.typeName);
+		}
+
+	},
+
+
+	/**
+	 * Get the device object from Device ID
+	 * @param  {Number} device_id Devce 5D
+	 * @param  {Function} callback function - function (error_text, device)
+	 */
+	_getDevice: function (device_id, callback) {
+
+		var self = module.exports;
+
+		var db = helper.getDB();
+		db.query('SELECT * FROM Device WHERE id = ?', [device_id], function (err, rows) {
+
+			if (err || rows.length == 0) {
+				callback('Could not get the device', null);
+				return;
+			}
+
+			callback(null, rows[0]);
+
+		});
+
+
+	},
+
+
+	/**
+	 * Register the commands definition to the database.
+	 * It also generate the Device Type.
+	 * @param  {Object} ws Instance of ws library - https://github.com/websockets/ws
+	 * @param  {Number} device_id Devce ID
+	 * @param  {Object} commands Commands
+	 * @param  {String} base_type_name Device type name which self-reported from the device
+	 */
+	_registerDeviceManifest: function (ws, device_id, commands, base_type_name) {
+
+		var self = module.exports;
+
+		var db = helper.getDB();
+
+		self._getDevice(device_id, function (error_text, device) {
+
+			if (error_text) {
+				console.warn(error_text);
+				return false;
+			}
+
+			// Make a json from commands
+			var commands_json = jsonStableStringify(commands, function (a, b) {
+				return a.key < b.key ? 1 : -1;
+			});
+
+			// Get the number of the same DeviceType with this device
+			var type_id = device.deviceTypeId;
+			db.query('SELECT * FROM Device WHERE deviceTypeId = ?;', [type_id], function (err, rows) {
+
+				if (err) {
+					console.warn(err.toString());
+					return;
+				}
+
+				// Get the number of related device from the DeviceType
+				var num_of_related_device = rows.length;
+
+				// Get the current DeviceType from the database
+				db.query('SELECT * FROM DeviceType WHERE id = ?;', [type_id], function (err, rows) {
+
+					if (err) {
+						console.warn(err.toString());
+						return;
+					}
+
+					// Compare the commands of the current DeviceType with device
+					var device_type = rows[0] || {};
+					if (rows.length == 1 && rows[0].commands != null && rows[0].commands == commands_json) {
+						console.log('Commands are not changed', 'DeviceId=' + device_id, 'DeviceTypeId=' + type_id);
+						return false; // commands are not changed
+					}
+
+					// Find the similar Device Type
+					db.query('SELECT * FROM DeviceType WHERE baseName = ?;', [base_type_name], function (err, rows) { // Commands was matched
+
+						if (err) {
+							console.warn(err.toString());
+							return false;
+						}
+
+						// Compare the commands of the DeviceType with the device
+						for (var i = 0; i < rows.length; i++) {
+
+							var similar_type_id = rows[i].id;
+
+							if (rows[i].commands != null && rows[i].commands == commands_json) { // Commands was matched to similar device type
+
+								console.log('DeviceType has been merged', 'DeviceId=' + device_id, 'DeviceTypeId(Src)=' + type_id, 'DeviceTypeId(Dst)=' + similar_type_id);
+
+								// Change the deviceTypeId of the device to the similar DeviceType
+								db.query('UPDATE Device SET commands = ?, deviceTypeId = ? WHERE id = ?;', [commands_json, similar_type_id, device_id],
+								function (err, result) {
+									if (err) console.warn('Could not update the device type', err.toString());
+								});
+
+								// Merge the DeviceType to the similar DeviceType
+								db.query('DELETE FROM DeviceType WHERE id = ?;', [type_id],
+								function (err, result) {
+									if (err) console.warn('Could not merge the device type', err.toString());
+								});
+
+								return true;
+
+							}
+
+						}
+
+						// Create or Update of DeviceType
+						if (num_of_related_device == 1) {
+
+							console.log('Device Type has been updated', 'DeviceId=' + device_id, 'DeviceTypeId=' + type_id, 'DeviceTypeName=' + device_type.name);
+
+							// Update the commands of type device type
+							db.query('UPDATE DeviceType SET baseName = ?, commands = ? WHERE id = ?;', [base_type_name, commands_json, type_id],
+							function (err, result) {
+
+								if (err) console.warn('Could not update the device type', err.toString());
+
+							});
+
+							// Update the commands of the device
+							db.query('UPDATE Device SET commands = ? WHERE id = ?;', [commands_json, device_id],
+							function (err, result) {
+
+								if (err) console.warn(err.toString());
+
+							});
+
+						} else {
+
+							// Make a name of the new device type
+							var type_name = base_type_name || device.name;
+							type_name += '-' + crypto.createHash('sha1').update(commands_json).digest('hex');
+
+							// Make the new device type
+							console.log('Device Type has been created', 'DeviceId=' + device_id, 'DeviceTypeId=NEW', 'DeviceTypeName=' + type_name);
+							db.query('INSERT INTO DeviceType(name, baseName, commands) VALUES(?, ?, ?);', [type_name, base_type_name, commands_json],
+							function (err, result) {
+
+								if (err) {
+									console.warn('Could not make the device type', err.toString());
+									return;
+								}
+
+								type_id = result.insertId;
+
+								// Update the device type ID and commands of the device
+								db.query('UPDATE Device SET deviceTypeId = ?, commands = ? WHERE id = ?;', [type_id, commands_json, device_id],
+								function (err, result) {
+
+									if (err) console.warn(err.toString());
+
+								});
+
+							});
+
+						}
+
+					});
+
+				});
+
+			});
+
+		});
 
 	}
 
