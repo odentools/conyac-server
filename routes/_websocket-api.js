@@ -32,7 +32,11 @@ module.exports = {
 		// Check a permission of the client
 		self._checkClientPermission(ws, location, function (ws, location, device) { // Client is valid
 
-			console.log('WebSocket client connected', ws.ipAddress, location, 'DeviceID=' + device.id);
+			if (!device.approvedAt) { // Unapproved device
+				console.log('WebSocket client connected', ws.ipAddress, location, 'DeviceID=' + device.id, 'Unapproved');
+			} else { // Approved device
+				console.log('WebSocket client connected', ws.ipAddress, location, 'DeviceID=' + device.id, 'Approved');
+			}
 
 			// Accept the connection
 			wsConnections.push(ws);
@@ -109,11 +113,7 @@ module.exports = {
 		var name = query.name || null;
 
 		// Get the Device Token string from query
-		var token = query.token;
-		if (token == null) {
-			cb_failed(ws, location, 'Token was undefined');
-			return;
-		}
+		var token = query.token || '';
 
 		// Find the device from the database
 		var db = helper.getDB();
@@ -122,15 +122,24 @@ module.exports = {
 			if (err) {
 				cb_failed(ws, location, err.toString());
 				return;
+
 			} else if (rows.length == 0) { // Device was not registered
 
 				if (name == null) {
-					cb_failed(ws, location, 'This unknown device are not registered', token);
+					cb_failed(ws, location, 'This anonymous device could not registered', token);
 					return;
 				}
 
-				// Add the device which approval needed
-				console.log('This device are unapproval', name, token);
+				// If necessary, generate the token string
+				var is_generated_token = false;
+				if (token == '') {
+					token = 'DEVICETOKEN_' + name + '_' + Math.random(999999) + '_' + new Date().toString();
+					token = crypto.createHash('sha256').update(token).digest('hex');
+					is_generated_token = true;
+				}
+
+				// Add the unapproved device
+				console.log('This device are unapproved', name, token);
 				var now = new Date();
 				db.query('INSERT Device(name, deviceToken, createdAt, lastConnectedAt) VALUES (?, ?, ?, ?);',
 				[name, token, now, now],
@@ -143,6 +152,14 @@ module.exports = {
 
 					// Add the device ID to the WebSocket connection
 					ws.deviceId = result.insertId;
+
+					// Send a token
+					if (is_generated_token) {
+						ws.send(JSON.stringify({
+							cmd: '_changeToken',
+							token: token
+						}));
+					}
 
 					// Done
 					var device = {

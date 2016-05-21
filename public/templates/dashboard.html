@@ -13,8 +13,12 @@
 		<md-content class="transparent-content" flex layout="column">
 
 			<md-list>
-				<md-subheader class="md-no-sticky">New devices available</md-subheader>
 
+				<md-subheader ng-if="unapprovedDevices.length == 0" class="md-no-sticky">
+					There is no notification. Have a nice day :)
+				</md-subheader>
+
+				<md-subheader ng-if="0 < unapprovedDevices.length" class="md-no-sticky">New devices available</md-subheader>
 				<md-list-item ng-repeat="device in unapprovedDevices" ng-click="approveDevice(device, $event)">
 					<md-icon style="margin-top: 10px;">developer_board</md-icon>
 					<p>
