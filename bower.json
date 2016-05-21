@@ -24,6 +24,7 @@
     "angular-material": "~1.0.8",
     "angular-resource": "~1.5.5",
     "angular-route": "~1.5.3",
+    "angular-sanitize": "~1.5.5",
     "angular-websocket": "1.0.14",
     "font-awesome": "~4.5.0",
     "ngstorage": "~0.3.10"

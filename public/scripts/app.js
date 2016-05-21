@@ -5,7 +5,7 @@
 'use strict';
 
 angular.module('ConyacControlPanelApp',
-	['ConyacServerAPI', 'ngRoute', 'ngMaterial', 'ngStorage', 'angular-loading-bar'])
+	['ConyacServerAPI', 'ngRoute', 'ngMaterial', 'ngStorage', 'ngSanitize', 'angular-loading-bar'])
 
 
 /**
@@ -193,15 +193,32 @@ function($scope, $window, $location, $mdSidenav, Accounts, SessionService) {
 
 
 // Controller for Dashboard Page
-.controller('DashboardPageCtrl', ['$scope', '$location', '$localStorage', 'Devices',
-function($scope, $location, $localStorage, Devices) {
+.controller('DashboardPageCtrl', ['$scope', '$location', '$mdDialog', '$sanitize', 'Devices',
+function($scope, $location, $mdDialog, $sanitize, Devices) {
 
 	// Online Devices
 	$scope.onlineDevices = [];
 
+	// Notification - Unapproved Devices
+	$scope.unapprovedDevices = [];
+
 
 	/**
-	 * Get the item list
+	 * Get a list of Unapproved devices
+	 */
+	$scope.getUnapprovedDevices = function () {
+
+		Devices.get({ approved: false },function (items) {
+			$scope.unapprovedDevices = items;
+		}, function (err, status) {
+			console.log(err);
+		});
+
+	};
+
+
+	/**
+	 * Get a list of the Online Devices
 	 */
 	$scope.getOnlineDevices = function () {
 
@@ -214,9 +231,84 @@ function($scope, $location, $localStorage, Devices) {
 	};
 
 
+	/**
+	 * Approve the Unapproved device
+	 * @param  {Object} device Device data
+	 * @param  {Event} $event  Click event of Angular Material
+	 */
+	$scope.approveDevice = function (device, $event) {
+
+		// Show an dialog
+		var dialog = $mdDialog.confirm({
+			title: 'Approval of Device - ' + device.name,
+			htmlContent: $sanitize('Would you approve this device?<br/>CAUTION: You shouldn\'t approve an unknown device.'),
+			ok: 'APPROVE',
+			cancel: 'CANCEL'
+		});
+
+		$mdDialog.show(dialog).then(function () { // OK
+
+			Devices.approve({
+				id: device.id
+			}, function (data) {
+
+				$scope.getOnlineDevices();
+				$scope.getUnapprovedDevices();
+
+			}, function (err, status) {
+				console.warn(err);
+			});
+
+		}, function () { // Cancel
+
+			return;
+
+		});
+
+	};
+
+
+	/**
+	 * Delete the unapproved device
+	 * @param  {Number} id      Device ID
+	 * @param  {Event}  $event  Click event of Angular Material
+	 */
+	$scope.deleteUnapprovedDevice = function (id, $event) {
+
+		$event.stopPropagation();
+
+		var dialog = $mdDialog.alert({
+			title: 'Reject of Unapproved Device',
+			ok: 'OK'
+		});
+
+		// Delete the item
+		Devices.delete({
+			id: id
+		}, function (data) { // Successful
+
+			// Show a message
+			dialog.textContent(data.result);
+			$mdDialog.show(dialog);
+
+			// Reload
+			$scope.getUnapprovedDevices();
+
+		}, function (err, status) { // Failed
+
+			// Show a message
+			dialog.textContent('Error: ' + err.data);
+			$mdDialog.show(dialog);
+
+		});
+
+	};
+
+
 	// ----
 
 	$scope.getOnlineDevices();
+	$scope.getUnapprovedDevices();
 
 }])
 

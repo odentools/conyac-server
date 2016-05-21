@@ -4,7 +4,8 @@
 
 var url = require('url'), querystring = require('querystring'), crypto = require('crypto'),
 	jsonStableStringify = require('json-stable-stringify');
-var helper = require(__dirname + '/../models/helper');
+
+var Device = require(__dirname + '/../models/device'), helper = require(__dirname + '/../models/helper');
 
 // Array for WebSocket Connections
 var wsConnections = [];
@@ -104,7 +105,10 @@ module.exports = {
 			query = querystring.parse(RegExp.$1);
 		}
 
-		// Get the token string from query
+		// Get the Device Name string from query
+		var name = query.name || null;
+
+		// Get the Device Token string from query
 		var token = query.token;
 		if (token == null) {
 			cb_failed(ws, location, 'Token was undefined');
@@ -118,9 +122,40 @@ module.exports = {
 			if (err) {
 				cb_failed(ws, location, err.toString());
 				return;
-			} else if (rows.length == 0) {
-				cb_failed(ws, location, 'Device was not registered');
+			} else if (rows.length == 0) { // Device was not registered
+
+				if (name == null) {
+					cb_failed(ws, location, 'This unknown device are not registered', token);
+					return;
+				}
+
+				// Add the device which approval needed
+				console.log('This device are unapproval', name, token);
+				var now = new Date();
+				db.query('INSERT Device(name, deviceToken, createdAt, lastConnectedAt) VALUES (?, ?, ?, ?);',
+				[name, token, now, now],
+				function (err, result) {
+
+					if (err) {
+						cb_failed(ws, location, err.toString());
+						return;
+					}
+
+					// Add the device ID to the WebSocket connection
+					ws.deviceId = result.insertId;
+
+					// Done
+					var device = {
+						name: name,
+						deviceToken: token,
+						createdAt: now,
+						lastConnectedAt: now
+					};
+					cb_success(ws, location, device);
+
+				});
 				return;
+
 			}
 
 			// Add the device ID to the WebSocket connection

@@ -35,7 +35,7 @@ var SQL_QUERIES = [
 	// Device Type
 	'CREATE TABLE DeviceType (\
 		id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,\
-		base_name VARCHAR(64) NOT NULL,\
+		baseName VARCHAR(64) NOT NULL,\
 		name VARCHAR(64) NOT NULL UNIQUE,\
 		commands TEXT\
 	);',
@@ -90,7 +90,7 @@ var SQL_QUERIES = [
 		commands TEXT,\
 		createdAt DATETIME NOT NULL,\
 		approvedAt DATETIME,\
-		approvedAccountId INT NOT NULL,\
+		approvedAccountId INT,\
 		lastConnectedAt DATETIME,\
 		FOREIGN KEY (deviceTypeId) REFERENCES DeviceType(id),\
 		FOREIGN KEY (approvedAccountId) REFERENCES Account(id)\

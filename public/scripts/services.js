@@ -111,6 +111,10 @@ angular.module('ConyacServerAPI', ['ngResource', 'ngStorage'])
 			},
 			create: {
 				method: 'POST'
+			},
+			approve: {
+				method: 'POST',
+				url: '/api/devices/:id/approve'
 			}
 		}
 	);

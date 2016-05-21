@@ -14,10 +14,17 @@
 
 			<md-list>
 				<md-subheader class="md-no-sticky">New devices available</md-subheader>
-				<md-list-item ng-click="something()">
-					<md-icon>directions_car</md-icon>
-					<p>RCCar / rccar0 &nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp; Would you allow this device?</p>
+
+				<md-list-item ng-repeat="device in unapprovedDevices" ng-click="approveDevice(device, $event)">
+					<md-icon style="margin-top: 10px;">developer_board</md-icon>
+					<p>
+						{{device.name}}&nbsp;&nbsp;
+						<small>(ID: {{device.id}})</small>
+						&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp; Would you approve this device?
+					</p>
+					<md-icon ng-click="deleteUnapprovedDevice(device.id, $event)" aria-label="Delete this unapproved device">delete</md-icon>
 				</md-list-item>
+
 			</md-list>
 
 		</md-content>

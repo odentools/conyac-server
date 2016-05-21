@@ -95,5 +95,8 @@ md-card.status-active {
 }
 
 .dashboard md-list-item .md-list-item-inner md-icon {
-	margin-top: 8px !important;
+	/*margin-top: 8px !important;*/
 }
+
+
+md-icon

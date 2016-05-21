@@ -14,11 +14,17 @@ var wsApi = require(__dirname + '/../_websocket-api'), helper = require(__dirnam
 router.get('/', function (req, res) {
 
 	var db = helper.getDB();
+
+	// Filter
+	var filter_approved = (req.query.approved && req.query.approved == 'false') ? false : true;
+
+	// Find
 	var query = 'SELECT Device.*, \
 	DeviceType.name AS deviceTypeName, DeviceType.baseName AS deviceTypeBaseName, \
 	Account.name AS approvedAccountName \
-	FROM Device, Account, DeviceType WHERE Device.approvedAccountId = Account.id AND Device.deviceTypeId = DeviceType.id';
-
+	FROM Device\
+	LEFT JOIN DeviceType ON DeviceType.id = Device.deviceTypeId\
+	LEFT JOIN Account ON Account.id = Device.approvedAccountId;';
 	db.query(query,
 		function (err, rows) {
 
@@ -39,9 +45,13 @@ router.get('/', function (req, res) {
 				item.isConnected = false;
 				item.ipAddress = null;
 			}
-			
+
 			if (req.query.isOnline && !item.isConnected) {
 				return; // skip this item
+			} else if (filter_approved && item.approvedAt == null) {
+				return; // skip this item
+			} else if (!filter_approved && item.approvedAt) {
+				return;
 			}
 
 			devices.push(item);
@@ -163,7 +173,7 @@ router.post('/', function (req, res) {
 
 
 /**
- * POST /api/devices/id - Update the device
+ * POST /api/devices/:id - Update the device
  */
 router.post('/:id', function (req, res) {
 
@@ -191,6 +201,34 @@ router.post('/:id', function (req, res) {
 			id: id,
 			name: name,
 			result: 'Device (ID: ' + id + ') has been updated.'
+		});
+
+	});
+
+});
+
+
+/**
+ * POST /api/devices/:id/approve - Approve the device
+ */
+router.post('/:id/approve', function (req, res) {
+
+	var id = req.params.id || -1;
+
+	// Update on the database
+	var db = helper.getDB();
+	var now = new Date();
+	db.query('UPDATE Device SET approvedAt = ?, approvedAccountId = ? WHERE id = ?;',
+	[now, req.headers.sessionAccountId, id], function (err, result) {
+
+		if (err) {
+			res.status(400).send(err.toString());
+			return;
+		}
+
+		res.send({
+			id: id,
+			result: 'Device (ID: ' + id + ') has been approved.'
 		});
 
 	});
