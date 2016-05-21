@@ -6,7 +6,9 @@ var express = require('express');
 var router = express.Router();
 
 var crypto = require('crypto'),	async = require('async');
-var wsApi = require(__dirname + '/../_websocket-api'), helper = require(__dirname + '/../../models/helper');
+
+var wsApi = require(__dirname + '/../_websocket-api'), helper = require(__dirname + '/../../models/helper'),
+	Device = require(__dirname + '/../../models/device');
 
 /**
  * GET /api/devices - Get a list of the devices
@@ -275,29 +277,76 @@ router.post('/:deviceKeyword/exec', function (req, res) {
 
 
 	// Make a callback function
-	var sendCmdToDevices = function (req, res, send_data, device_ids_array) {
+	var sendCmdToDevices = function (req, res, send_data, device_ids) {
 
-		var num_of_sent_devices = 0;
+		var processed_device_ids = [], sent_device_ids = [], errors = [];
 
-		device_ids_array.forEach(function (id, i) {
+		device_ids.forEach(function (id, i) {
 
 			var ws_con = wsApi.getConnectionByDeviceId(id);
-			if (!ws_con) return; // skip
-
-			// TODO: Validate the command
-
-			// Send the command
-			try {
-				ws_con.send(JSON.stringify(send_data));
-				num_of_sent_devices++;
-				console.log('sendCmdToDevices - Sent the command', id, send_data);
-			} catch (e) {
-				console.warn('sendCmdToDevices - Could not sent the command', e.toString());
+			if (!ws_con) {
+				errors.push('Device ' + id + ' is offline.');
+				return; // skip
 			}
+
+
+			// Make an instance of Device model
+			Device.getInstanceById(id, function (err, device) {
+
+				if (device == null) {
+					errors.push('Could not make an instance of Device model for ID ' + id + '.');
+					processed_device_ids.push(id);
+					return; // skip
+				}
+
+				// Validate the command arguments
+				try {
+					send_data.args = device.getValidCommandArgs(send_data.cmd, send_data.args);
+				} catch (e) {
+					errors.push(e.toString());
+					return; // skip
+				}
+
+				// Send the command
+				try {
+					ws_con.send(JSON.stringify(send_data));
+					sent_device_ids.push(id);
+					console.log('sendCmdToDevices - Sent the command', id, send_data);
+				} catch (e) {
+					console.log('sendCmdToDevices - Could not sent the command', e.toString());
+					errors.push('Could not sent the command', e.toString());
+				}
+
+				processed_device_ids.push(id);
+
+			});
 
 		});
 
-		res.send('Your command has sent to ' + num_of_sent_devices + ' devices within Device ID ' + device_ids_array.join(',') + '.');
+		// Wait until processed the all clients
+		var timer = setInterval(function () {
+
+			if (device_ids.length == processed_device_ids.length) {
+				clearInterval(timer);
+			}
+
+			// Send a result to the client
+			var result = {
+				message: 'Your command has sent to ' + sent_device_ids.length + ' devices within Device ID ' + device_ids.join(',') + '.',
+				targetDevices: device_ids,
+				numOfSentDevices: sent_device_ids.length,
+				errors: errors,
+				sentData: send_data,
+				sentDevices: sent_device_ids
+			};
+
+			if (device_ids.length != 0 && sent_device_ids != 0) {
+				res.status(400).send(result);
+			} else {
+				res.send(result);
+			}
+
+		}, 5);
 
 	};
 

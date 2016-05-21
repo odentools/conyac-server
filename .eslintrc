@@ -27,6 +27,7 @@
         "angular/controller-as-route": 0,
         "angular/document-service": 0,
         "angular/controller-name": [2, "/[A-Z].*Ctrl$/"],
+        "angular/interval-service": 0
     },
     "env": {
         "es6": true,
