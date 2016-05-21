@@ -193,8 +193,30 @@ function($scope, $window, $location, $mdSidenav, Accounts, SessionService) {
 
 
 // Controller for Dashboard Page
-.controller('DashboardPageCtrl', ['$scope', '$location', '$localStorage', 'Accounts',
-function($scope, $location, $localStorage, Accounts) {
+.controller('DashboardPageCtrl', ['$scope', '$location', '$localStorage', 'Devices',
+function($scope, $location, $localStorage, Devices) {
+
+	// Online Devices
+	$scope.onlineDevices = [];
+
+
+	/**
+	 * Get the item list
+	 */
+	$scope.getOnlineDevices = function () {
+
+		Devices.get({ isOnline: true },function (items) {
+			$scope.onlineDevices = items;
+		}, function (err, status) {
+			console.log(err);
+		});
+
+	};
+
+
+	// ----
+
+	$scope.getOnlineDevices();
 
 }])
 

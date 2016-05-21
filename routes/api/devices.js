@@ -14,10 +14,12 @@ var wsApi = require(__dirname + '/../_websocket-api'), helper = require(__dirnam
 router.get('/', function (req, res) {
 
 	var db = helper.getDB();
-	db.query('SELECT Device.*, \
+	var query = 'SELECT Device.*, \
 	DeviceType.name AS deviceTypeName, DeviceType.baseName AS deviceTypeBaseName, \
 	Account.name AS approvedAccountName \
-	FROM Device, Account, DeviceType WHERE Device.approvedAccountId = Account.id AND Device.deviceTypeId = DeviceType.id;',
+	FROM Device, Account, DeviceType WHERE Device.approvedAccountId = Account.id AND Device.deviceTypeId = DeviceType.id';
+
+	db.query(query,
 		function (err, rows) {
 
 		if (err) throw err;
@@ -36,6 +38,10 @@ router.get('/', function (req, res) {
 			} else {
 				item.isConnected = false;
 				item.ipAddress = null;
+			}
+			
+			if (req.query.isOnline && !item.isConnected) {
+				return; // skip this item
 			}
 
 			devices.push(item);
