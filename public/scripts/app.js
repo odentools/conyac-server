@@ -395,7 +395,10 @@ function($scope, $mdDialog, APITokens) {
 .controller('TokenEditorPageCtrl', ['$scope', '$routeParams', '$location', '$mdDialog', 'APITokens',
 function($scope, $routeParams, $location, $mdDialog, APITokens) {
 
-	$scope.apiToken = {};
+	$scope.apiToken = {
+		name: null,
+		scope: 'DEVICE_API'
+	};
 	$scope.errorText = null;
 
 

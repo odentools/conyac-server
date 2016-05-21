@@ -25,7 +25,7 @@
 					<div ng-if="apiToken.id == null || apiToken.token != null">
 						<h2>Create API Token</h2>
 						<p ng-if="apiToken.token == null">
-							Create the API Token for a device.<br/><br/>
+							Create the API Token for the External Web Services / Applications.<br/><br/>
 						</p>
 					</div>
 					<p ng-if="apiToken.token != null">
@@ -44,6 +44,21 @@
 					<md-input-container class="md-block" ng-if="apiToken.token == null">
 						<label>Name&nbsp;&nbsp;-&nbsp;&nbsp;Please fill the easily identifiable name</label>
 						<input ng-model="apiToken.name" placeholder="e.g. slack-0">
+					</md-input-container>
+
+					<md-input-container class="md-block" ng-if="apiToken.token == null">
+						<p>Option - Scope</p>
+						<md-radio-group ng-model="apiToken.scope" ng-if="apiToken.token == null">
+							<md-radio-button value="ALL" class="md-primary">
+								ALL&nbsp;&nbsp;&nbsp;&nbsp;
+								<small>It allows manipulate the server as same level with Control Panel.
+									CAUTION: It also means it has a permission same with <i>Device API</i>.</small>
+							</md-radio-button>
+							<md-radio-button value="DEVICE_API">
+								Device API&nbsp;&nbsp;&nbsp;&nbsp;
+								<small>It allows access (Read or Execution of Device Commands) to the connected devices.</small>
+							</md-radio-button>
+						</md-radio-group>
 					</md-input-container>
 
 					<md-input-container class="md-block" ng-if="apiToken.token != null">

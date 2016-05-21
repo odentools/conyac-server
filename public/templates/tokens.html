@@ -22,6 +22,9 @@
 						<small class="sub">(ID: {{apiToken.id}})</small>
 					</h3>
 					<p>
+						Scope: {{apiToken.scope}}
+					</p>
+					<p>
 						Created by
 						<a ng-href="/#/accounts/{{apiToken.createdAccountId}}" target="_blank">{{apiToken.createdAccountName}} (ID: {{apiToken.createdAccountId}})</a>
 						on {{apiToken.createdAt | date : 'medium'}}<br/>

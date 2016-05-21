@@ -95,6 +95,7 @@ router.delete('/:id', function (req, res) {
 router.post('/', function (req, res) {
 
 	var name = req.body.name || null;
+	var scope = req.body.scope || 'DEVICE_API';
 
 	// Check the parameters
 	if (name == null || !name.match(/^[A-Za-z0-9_\-]+$/)) {
@@ -108,8 +109,8 @@ router.post('/', function (req, res) {
 
 	// Insert to database
 	var db = helper.getDB();
-	db.query('INSERT INTO ApiToken (name, token, createdAccountId, createdAt) VALUES (?, ?, ?, ?);',
-	[name, api_token, req.headers.sessionAccountId, new Date()], function (err, result) {
+	db.query('INSERT INTO ApiToken (name, token, scope, createdAccountId, createdAt) VALUES (?, ?, ?, ?, ?);',
+	[name, api_token, scope, req.headers.sessionAccountId, new Date()], function (err, result) {
 
 		if (err) {
 			res.status(400).send(err.toString());
@@ -120,6 +121,7 @@ router.post('/', function (req, res) {
 			id: result.insertId,
 			name: name,
 			token: api_token,
+			scope: scope,
 			createdAt: null,
 			result: 'API Token (ID: ' + result.insertId + ') has been created.'
 		});

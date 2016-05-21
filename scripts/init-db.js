@@ -18,7 +18,7 @@ var SQL_QUERIES = [
 		id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,\
 		name VARCHAR(20) NOT NULL UNIQUE,\
 		pw TEXT NOT NULL,\
-		role SET(\'USER\', \'MODERATOR\', \'ADMIN\'),\
+		role SET(\'USER\', \'MODERATOR\', \'ADMIN\') NOT NULL,\
 		createdAt DATETIME NOT NULL\
 	);',
 
@@ -45,6 +45,7 @@ var SQL_QUERIES = [
 		id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,\
 		name VARCHAR(20),\
 		token VARCHAR(64) NOT NULL,\
+		scope SET(\'ALL\', \'DEVICE_API\') NOT NULL,\
 		createdAccountId INT,\
 		createdAt DATETIME NOT NULL,\
 		FOREIGN KEY (createdAccountId) REFERENCES Account(id),\

@@ -54,6 +54,12 @@ router.get('/', function (req, res) {
 				return;
 			}
 
+			try {
+				item.commands = JSON.parse(item.commands);
+			} catch (e) {
+				item.commands = {};
+			}
+
 			devices.push(item);
 
 		});
@@ -95,6 +101,12 @@ router.get('/:id', function (req, res) {
 		} else {
 			item.isConnected = false;
 			item.ipAddress = null;
+		}
+
+		try {
+			item.commands = JSON.parse(item.commands);
+		} catch (e) {
+			item.commands = {};
 		}
 
 		res.send(item);
@@ -173,9 +185,9 @@ router.post('/', function (req, res) {
 
 
 /**
- * POST /api/devices/:id - Update the device
+ * PUT /api/devices/:id - Update the device
  */
-router.post('/:id', function (req, res) {
+router.put('/:id', function (req, res) {
 
 	var id = req.params.id || -1;
 	var name = req.body.name || null;
@@ -232,6 +244,120 @@ router.post('/:id/approve', function (req, res) {
 		});
 
 	});
+
+});
+
+
+/**
+ * POST /api/devices/:deviceKeyword/exec - Execute the command on the device
+ */
+router.post('/:deviceKeyword/exec', function (req, res) {
+
+	// Parse the device keyword
+	var device_keyword = req.params.deviceKeyword;
+	var device_id = null, device_name = null, device_type_id = null;
+	if (device_keyword.match(/^([0-9]+)$/)) { // Device ID
+		device_id = RegExp.$1;
+	} else if (device_keyword.match(/^name=([a-zA-Z0-9_\-\=\*]+)$/)) { // Device Name
+		device_name = RegExp.$1;
+	} else if (device_keyword.match(/^type=([0-9]+)$/)) { // DeviceType ID
+		device_type_id = RegExp.$1;
+	} else if (device_keyword.match(/^typeName=([a-zA-Z0-9_\-\=\*]+)+$/)) { // DeviceType Name
+		// TODO
+	}
+
+	// Check the parameter
+	var cmd_name = req.body.cmd;
+	if (cmd_name == null) {
+		res.status(400).send('command was not defined');
+		return;
+	}
+
+
+	// Make a callback function
+	var sendCmdToDevices = function (req, res, send_data, device_ids_array) {
+
+		var num_of_sent_devices = 0;
+
+		device_ids_array.forEach(function (id, i) {
+
+			var ws_con = wsApi.getConnectionByDeviceId(id);
+			if (!ws_con) return; // skip
+
+			// TODO: Validate the command
+
+			// Send the command
+			try {
+				ws_con.send(JSON.stringify(send_data));
+				num_of_sent_devices++;
+				console.log('sendCmdToDevices - Sent the command', id, send_data);
+			} catch (e) {
+				console.warn('sendCmdToDevices - Could not sent the command', e.toString());
+			}
+
+		});
+
+		res.send('Your command has sent to ' + num_of_sent_devices + ' devices within Device ID ' + device_ids_array.join(',') + '.');
+
+	};
+
+	// Build a send data
+	var send_data = {
+		cmd: cmd_name,
+		args: {},
+		sentAt: new Date()
+	};
+	for (var key in req.body) {
+		if (key == 'cmd') continue;
+		send_data.args[key] = req.body[key];
+	}
+
+	// Find the target devices
+	var db = helper.getDB();
+	if (device_id) {
+
+		sendCmdToDevices(req, res, send_data, [device_id]);
+		return;
+
+	} else if (device_name) {
+
+		device_name = device_name.replace('*', '%', 'g');
+
+		// Find the device from the Device Name
+		db.query('SELECT * FROM Device WHERE name LIKE ?;', [device_name], function (err, rows) {
+
+			var device_ids = [];
+			if (!err) {
+				rows.forEach(function (row, i) {
+					device_ids.push(row.id);
+				});
+			}
+
+			sendCmdToDevices(req, res, send_data, device_ids);
+
+		});
+		return;
+
+	} else if (device_type_id) {
+
+		// Find the device from the DeviceType ID
+		db.query('SELECT * FROM Device WHERE deviceTypeId = ?;', [device_type_id], function (err, rows) {
+
+			var device_ids = [];
+			if (!err) {
+				rows.forEach(function (row, i) {
+					device_ids.push(row.id);
+				});
+			}
+
+			sendCmdToDevices(req, res, send_data, device_ids);
+
+		});
+		return;
+
+	}
+
+	res.status(502).send('Your requested device is not found.');
 
 });
 
