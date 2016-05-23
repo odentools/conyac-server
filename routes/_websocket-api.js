@@ -110,10 +110,10 @@ module.exports = {
 		}
 
 		// Get the Device Name string from query
-		var name = query.name || null;
+		var name = query.deviceName || null;
 
 		// Get the Device Token string from query
-		var token = query.token || '';
+		var token = query.deviceToken || '';
 
 		// Find the device from the database
 		var db = helper.getDB();

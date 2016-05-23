@@ -1,8 +1,8 @@
 /**
- * AngularJS Service for ConyacServer API
+ * AngularJS Service for DenHubServer API
  */
 
-angular.module('ConyacServerAPI', ['ngResource', 'ngStorage'])
+angular.module('DenHubServerAPI', ['ngResource', 'ngStorage'])
 
 
 /**
@@ -22,7 +22,7 @@ angular.module('ConyacServerAPI', ['ngResource', 'ngStorage'])
 		getToken: function () {
 
 			try {
-				sessionToken = $localStorage.conyacSessionToken;
+				sessionToken = $localStorage.denhubSessionToken;
 			} catch (e) { return sessionToken; }
 
 			return sessionToken;
@@ -39,7 +39,7 @@ angular.module('ConyacServerAPI', ['ngResource', 'ngStorage'])
 			sessionToken = token;
 
 			try {
-				$localStorage.conyacSessionToken = sessionToken;
+				$localStorage.denhubSessionToken = sessionToken;
 			} catch (e) {
 				return;
 			}

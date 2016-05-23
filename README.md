@@ -1,9 +1,10 @@
+# denhub-server
 
-# conyac-server
+The Management Server and Control Panel for [DenHub](https://github.com/odentools/denhub) platform.
 
 This project is development phase.
 
-[![Build Status](https://travis-ci.org/odentools/conyac-server?branch=master)](https://travis-ci.org/odentools/conyac-server)
+[![Build Status](https://travis-ci.org/odentools/denhub-server?branch=master)](https://travis-ci.org/odentools/denhub-server)
 
 ## Get Started
 
@@ -17,13 +18,16 @@ Required: Heroku account
 
 Required: Heroku account, [Heroku Toolbelt](https://toolbelt.heroku.com/) (CLI).
 
-	$ git clone https://github.com/odentools/conyac-server.git
-	$ cd conyac-server/
+	$ git clone https://github.com/odentools/denhub-server.git
+	$ cd denhub-server/
 	$ heroku apps:create
 	$ heroku addons:create cleardb:ignite
 	$ git push heroku master
 	$ heroku open
 
+### Manual Deploy to Docker
+
+Under construction...
 
 ## Licenses
 

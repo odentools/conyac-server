@@ -1,6 +1,6 @@
 /**
- * conyac-server
- * https://github.com/odentools/conyac-server
+ * denhub-server
+ * https://github.com/odentools/denhub-server
  * (C) 2016 - OdenTools; Released under MIT License.
  */
 

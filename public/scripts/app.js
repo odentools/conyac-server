@@ -4,8 +4,8 @@
 
 'use strict';
 
-angular.module('ConyacControlPanelApp',
-	['ConyacServerAPI', 'ngRoute', 'ngMaterial', 'ngStorage', 'ngSanitize', 'angular-loading-bar'])
+angular.module('DenHubControlPanelApp',
+	['DenHubServerAPI', 'ngRoute', 'ngMaterial', 'ngStorage', 'ngSanitize', 'angular-loading-bar'])
 
 
 /**

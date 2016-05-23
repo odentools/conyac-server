@@ -1,5 +1,5 @@
 {
-  "name": "conyac-server",
+  "name": "denhub-server",
   "version": "0.0.1",
   "description": "",
   "main": "server.js",
@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/odentools/conyac-server.git"
+    "url": "https://github.com/odentools/denhub-server.git"
   },
   "dependencies": {
     "async": "^2.0.0-rc.5",

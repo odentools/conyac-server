@@ -20,8 +20,8 @@ module.exports = {
 		} else {
 			dbCon = mysql.createPool({
 				host: 'localhost',
-				user: 'conyac-server',
-				database: 'conyac-server'
+				user: 'denhub-server',
+				database: 'denhub-server'
 			});
 		}
 
