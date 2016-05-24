@@ -29,6 +29,25 @@ module.exports = {
 		// Get an IP address
 		ws.ipAddress = helper.getClientIPAddress(ws.upgradeReq);
 
+		// Set the incoming event handlers to connection
+		ws.on('message', function (message) {
+			self._onWsMessage(ws, message);
+		});
+
+		// Set the disconnection event handlers to connection
+		ws.on('error', function () {
+			console.log('WebSocket client disconnected by error');
+			wsConnections = wsConnections.filter(function (conn, i) {
+				return (conn === ws) ? false : true;
+			});
+		});
+		ws.on('close', function () {
+			console.log('WebSocket client disconnected');
+			wsConnections = wsConnections.filter(function (conn, i) {
+				return (conn === ws) ? false : true;
+			});
+		});
+
 		// Check a permission of the client
 		self._checkClientPermission(ws, location, function (ws, location, device) { // Client is valid
 
@@ -40,25 +59,6 @@ module.exports = {
 
 			// Accept the connection
 			wsConnections.push(ws);
-
-			// Set the incoming event handlers to connection
-			ws.on('message', function (message) {
-				self._onWsMessage(ws, message);
-			});
-
-			// Set the disconnection event handlers to connection
-			ws.on('error', function () {
-				console.log('WebSocket client disconnected by error');
-				wsConnections = wsConnections.filter(function (conn, i) {
-					return (conn === ws) ? false : true;
-				});
-			});
-			ws.on('close', function () {
-				console.log('WebSocket client disconnected');
-				wsConnections = wsConnections.filter(function (conn, i) {
-					return (conn === ws) ? false : true;
-				});
-			});
 
 		}, function (ws, location, error_text) { // Client is invalid
 
@@ -132,10 +132,11 @@ module.exports = {
 
 				// If necessary, generate the token string
 				var is_generated_token = false;
-				if (token == '') {
+				if (!token || token == 'null' || token.length == 0) {
 					token = 'DEVICETOKEN_' + name + '_' + Math.random(999999) + '_' + new Date().toString();
 					token = crypto.createHash('sha256').update(token).digest('hex');
 					is_generated_token = true;
+					console.log('Generated new token: ' + token);
 				}
 
 				// Add the unapproved device
@@ -157,7 +158,9 @@ module.exports = {
 					if (is_generated_token) {
 						ws.send(JSON.stringify({
 							cmd: '_changeToken',
-							token: token
+							args: {
+								deviceToken: token
+							}
 						}));
 					}
 
@@ -211,8 +214,9 @@ module.exports = {
 			console.warn('Unknown message', e.toString());
 		}
 
-		if (data.cmd == '_sendManifests') {
-			self._registerDeviceManifest(ws, ws.deviceId, data.commands, data.typeName);
+		if (data.cmd == '_sendManifest') {
+			console.log('Manifest received: ' + JSON.stringify(data.args));
+			self._registerDeviceManifest(ws, ws.deviceId, data.args.commands, data.args.deviceType);
 		}
 
 	},
