@@ -4,7 +4,7 @@
 
 'use strict';
 
-var sSpecValidator = require('s-spec');
+var SSpecValidator = require('s-spec');
 var helper = require(__dirname + '/helper');
 
 
@@ -14,7 +14,7 @@ var helper = require(__dirname + '/helper');
 var Device = function (device) {
 
 	this.id = device.id;
-	this.commands = device.commands;
+	this.commands = JSON.parse(device.commands);
 
 };
 
@@ -56,20 +56,26 @@ Device.prototype.getValidCommandArgs = function (cmd_name, args) {
 
 	var self = this;
 
+	var validator = new SSpecValidator();
+
 	// Get the specifications of the command
-	if (self.commands[cmd_name]) {
-		throw new Error('Command not found: ' + cmd_name);
-	}
-	var cmd_specs = self.commands[cmd_name];
+	if (!self.commands[cmd_name]) throw new Error('Command not found: ' + cmd_name);
+	var cmd = self.commands[cmd_name];
+	var cmd_specs = cmd.args || {};
 
 	// Get the valid arguments
 	var valid_args = {};
 	for (var arg_name in cmd_specs) {
+
 		var spec = cmd_specs[arg_name];
-		if (!sSpecValidator.isValid(cmd_specs[arg_name])) {
-			throw new Error('Command argument invalid: ' + arg_name);
+		if (!spec) continue;
+
+		if (!validator.isValid(spec, args[arg_name])) {
+			throw new Error('Command argument invalid: ' + arg_name + '\nIt defined as ' + spec);
 		}
-		valid_args[arg_name] = sSpecValidator.getValidValue(spec, args[arg_name]);
+
+		valid_args[arg_name] = validator.getValidValue(spec, args[arg_name]);
+
 	}
 
 	return valid_args;

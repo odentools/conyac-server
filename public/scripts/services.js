@@ -130,7 +130,8 @@ angular.module('DenHubServerAPI', ['ngResource', 'ngStorage'])
 	return $resource(
 		'/api/deviceTypes/:id',
 		{
-			id: '@id'
+			id: '@id',
+			deviceKeyword: '@deviceKeyword'
 		},
 		{
 			get: {
@@ -142,6 +143,10 @@ angular.module('DenHubServerAPI', ['ngResource', 'ngStorage'])
 			},
 			create: {
 				method: 'POST'
+			},
+			execCmd: {
+				method: 'POST',
+				url: '/api/devices/:deviceKeyword/exec'
 			}
 		}
 	);

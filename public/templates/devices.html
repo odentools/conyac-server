@@ -73,6 +73,9 @@
 					<md-button ng-click="deleteDevice(device.id)" class="md-icon-button" aria-label="Delete this device">
 						<md-icon>delete</md-icon>
 					</md-button>
+					<md-button ng-href="/#/deviceTypes/{{device.deviceTypeId}}/commands" class="md-icon-button" aria-label="Show the commands">
+						<md-icon>explore</md-icon>
+					</md-button>
 				</md-card-actions>
 			</md-card>
 

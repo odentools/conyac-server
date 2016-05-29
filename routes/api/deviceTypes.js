@@ -5,8 +5,10 @@
 var express = require('express');
 var router = express.Router();
 
-var crypto = require('crypto'),	async = require('async');
-var wsApi = require(__dirname + '/../_websocket-api'), helper = require(__dirname + '/../../models/helper');
+var crypto = require('crypto'),	async = require('async'), SSpecParser = require('s-spec/models/parser');
+
+var wsApi = require(__dirname + '/../_websocket-api'),
+	helper = require(__dirname + '/../../models/helper');
 
 /**
  * GET /api/deviceTypes - Get a list of the devices
@@ -20,30 +22,13 @@ ON Device.deviceTypeId = DeviceType.id GROUP BY Device.deviceTypeId;',
 
 		if (err) throw err;
 
-		console.log(rows);
-
-		var devices = [];
-		var now_time = new Date().getTime();
+		var device_types = [];
 
 		rows.forEach(function (item, i) {
-
-			delete item.deviceToken;
-
-			var ws_con = wsApi.getConnectionByDeviceId(item.id);
-			item.typeName = 'AAA';
-			if (ws_con) {
-				item.isConnected = true;
-				item.ipAddress = ws_con.ipAddress;
-			} else {
-				item.isConnected = false;
-				item.ipAddress = null;
-			}
-
-			devices.push(item);
-
+			device_types.push(item);
 		});
 
-		res.send(devices);
+		res.send(device_types);
 
 	});
 
@@ -61,9 +46,9 @@ router.get('/:id', function (req, res) {
 		return;
 	}
 
-	// Get an item from the device id
+	// Get an item from the device type id
 	var db = helper.getDB();
-	db.query('SELECT * FROM Device WHERE id = ?;', [id], function (err, rows) {
+	db.query('SELECT * FROM DeviceType WHERE id = ?;', [id], function (err, rows) {
 
 		if (err || rows.length == 0) {
 			res.status(400).send('Item was not found ' + id);
@@ -71,15 +56,34 @@ router.get('/:id', function (req, res) {
 		}
 
 		var item = rows[0];
-		delete item.deviceToken;
 
-		var ws_con = wsApi.getConnectionByDeviceId(item.id);
-		if (ws_con) {
-			item.isConnected = true;
-			item.ipAddress = ws_con.ipAddress;
-		} else {
-			item.isConnected = false;
-			item.ipAddress = null;
+		try {
+			item.commands = JSON.parse(item.commands);
+		} catch (e) {
+			item.commands = {};
+		}
+
+		// Parse the commands
+		for (var cmd_name in item.commands) {
+			var cmd = item.commands[cmd_name];
+			for (var arg_name in cmd.args) {
+
+				var arg = cmd.args[arg_name];
+				try {
+					var sspec = new SSpecParser(arg);
+					arg = sspec;
+					if (arg.type == 'STRING' || arg.type == 'TEXT') {
+						arg.htmlInputType = 'text';
+					} else if (arg.type == 'NUMBER' || arg.type == 'INTEGER' || arg.type == 'FLOAT') {
+						arg.htmlInputType = 'number';
+					}
+				} catch (e) {
+					arg = {};
+				}
+
+				cmd.args[arg_name] = arg;
+
+			}
 		}
 
 		res.send(item);

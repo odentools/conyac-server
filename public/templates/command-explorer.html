@@ -1,0 +1,59 @@
+<!-- CommandExplorerPageCtrl -->
+<div flex layout="column">
+	<div flex layout="column" ng-cloak>
+
+		<md-toolbar class="section-header">
+			<div class="md-toolbar-tools">
+				<h2>
+					<span>
+						<md-icon>explore</md-icon>&nbsp;
+						Command Explorer&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+						<span ng-if="device.id == null">{{deviceType.name}}</span>
+					</span>
+				</h2>
+				<span flex></span>
+			</div>
+		</md-toolbar>
+
+		<md-content layout="column" style="background-color: inherit;">
+
+			<md-card flex ng-repeat="(cmd_name, cmd) in deviceType.commands">
+
+				<md-card-content>
+
+					<div>
+
+						<h3 name="{{cmd_name}}">
+							{{cmd_name}}
+						</h3>
+
+						<p>
+							{{cmd.description}}
+						</p>
+
+						<form>
+							<div layout="column">
+								<md-input-container ng-repeat="(arg_name, arg) in cmd.args" md-no-float class="md-block" flex>
+									<label>{{arg_name}} ({{arg.type}})</label>
+									<input ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.htmlInputType == 'number'" type="number" step="1" min="{{arg.min}}" max="{{arg.max}}">
+									<input ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.htmlInputType == 'text'" type="text">
+								</md-input-container>
+							</div>
+						</form>
+
+					</div>
+
+
+				</md-card-content>
+
+				<md-card-actions layout="row" layout-align="end center">
+					<md-button ng-click="execCmd(cmd_name, tryCmds[cmd_name].args)" class="md-raised md-primary">TRY IT</md-button>
+				</md-card-actions>
+
+			</md-card>
+
+		</md-content>
+
+	</div>
+</div>
+<!---->

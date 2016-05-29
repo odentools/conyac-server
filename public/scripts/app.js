@@ -63,6 +63,10 @@ angular.module('DenHubControlPanelApp',
 			templateUrl: 'templates/device-types.html',
 			controller: 'DeviceTypesPageCtrl'
 		}).
+		when('/deviceTypes/:id/commands', {
+			templateUrl: 'templates/command-explorer.html',
+			controller: 'CommandExplorerPageCtrl'
+		}).
 		when('/tokens', {
 			templateUrl: 'templates/tokens.html',
 			controller: 'TokensPageCtrl'
@@ -705,6 +709,103 @@ function($scope, $mdDialog, DeviceTypes) {
 }])
 
 
+// Controller for Command Explorer Page
+.controller('CommandExplorerPageCtrl', ['$scope', '$mdDialog', '$routeParams', '$sanitize', 'DeviceTypes',
+function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
+
+	// DeviceType
+	$scope.deviceType = {};
+
+	// Object for try the commands
+	$scope.tryCmds = {};
+
+
+	/**
+	 * Get the device type
+	 * @param {Number} id  ID
+	 */
+	$scope.getDeviceType = function (id) {
+
+		DeviceTypes.find({id: id},
+		function (data) {
+
+			for (var cmd_name in data.commands) {
+
+				$scope.tryCmds[cmd_name] = {
+					args: {}
+				};
+
+				// Set a default value of the arguments
+				var received_args = data.commands[cmd_name].args;
+				for (var arg_name in received_args) {
+					$scope.tryCmds[cmd_name].args[arg_name] = received_args[arg_name].default;
+				}
+
+			}
+			$scope.deviceType = data;
+
+		}, function (err, status) {
+			console.log(err);
+		});
+
+	};
+
+
+	/**
+	 * Execute the command on the server
+	 * @param {String} cmd_name  Command name
+	 * @param {Object} cmd_args  Command arguments
+	 */
+	$scope.execCmd = function (cmd_name, cmd_args) {
+
+		cmd_args.cmd = cmd_name;
+		cmd_args.deviceKeyword = 'type=' + $scope.deviceType.id;
+
+
+		DeviceTypes.execCmd(cmd_args,
+		function (data) {
+
+			var dialog = $mdDialog.alert({
+				title: 'Successful! :)',
+				textContent: data.message,
+				ok: 'OK'
+			});
+			$mdDialog.show(dialog);
+
+		}, function (err, status) {
+
+			var content = null;
+			if (err.data.errors) {
+				var errors = [];
+				err.data.errors.forEach(function (err ,i) {
+					errors.push('<li>' + err.replace(new RegExp('\\n', 'g'), '<br/>&nbsp;') + '</li>');
+				});
+				content = $sanitize(errors.join(''));
+			} else {
+				content = err.data;
+			}
+
+			var dialog = $mdDialog.alert({
+				title: 'Failed',
+				htmlContent: content,
+				ok: 'OK'
+			});
+			$mdDialog.show(dialog);
+
+		});
+
+	};
+
+
+	// ----
+
+	if ($routeParams.id) {
+		$scope.getDeviceType($routeParams.id);
+	}
+
+}])
+
+
 // Controller for Accounts Page
 .controller('AccountsPageCtrl', ['$scope', '$mdDialog', 'Accounts',
 function($scope, $mdDialog, Accounts) {
@@ -779,6 +880,92 @@ function($scope, $mdDialog, Accounts) {
 	// ----
 
 	$scope.getAccounts();
+
+}])
+
+
+// Controller for Device Editor Page
+.controller('DeviceEditorPageCtrl', ['$scope', '$routeParams', '$location', '$mdDialog', 'Devices',
+function($scope, $routeParams, $location, $mdDialog, Devices) {
+
+	$scope.device = {};
+	$scope.errorText = null;
+
+
+	/**
+	 * Get the device from server
+	 * @param  {Number} id
+	 */
+	$scope.getDevice = function (id) {
+
+		// Get the item on the server
+		Devices.find({id: id}, function (data) { // Successful
+
+			// Done
+			$scope.device = data;
+
+		}, function (err, status) { // Failed
+
+			var msg = err.data || 'Could not add the item.';
+			var dialog = $mdDialog.alert({
+				title: 'Device',
+				ok: 'OK'
+			});
+			dialog.textContent(msg);
+			$mdDialog.show(dialog).then(function () {
+
+				// Redirect
+				$location.path('/devices');
+
+			});
+
+		});
+
+	};
+
+
+	/**
+	 * Create or Update the device
+	 * @param  {Object} device Device data
+	 */
+	$scope.send = function (device) {
+
+		// Create the item on the server
+		Devices.create(device, function (data) { // Successful
+
+			// Show a message
+			$scope.errorText = null;
+			var dialog = $mdDialog.alert({
+				title: 'Device Manager',
+				ok: 'OK'
+			});
+			dialog.textContent(data.result);
+			$mdDialog.show(dialog);
+
+			// Done
+			if ($scope.device.id) {
+				// Redirect
+				$location.path('/devices');
+			} else {
+				$scope.device = data;
+			}
+
+		}, function (err, status) { // Failed
+
+			// Show the error
+			$scope.errorText = err.data || 'Could not add the item.';
+
+		});
+
+	};
+
+
+	// ----
+
+	if ($routeParams.id != null && $routeParams.id != 'new') {
+		$scope.device.id = $routeParams.id;
+		$scope.getDevice($routeParams.id);
+	}
 
 }])
 

@@ -324,11 +324,15 @@ router.post('/:deviceKeyword/exec', function (req, res) {
 		});
 
 		// Wait until processed the all clients
+		var is_sent = false;
 		var timer = setInterval(function () {
 
 			if (device_ids.length == processed_device_ids.length) {
 				clearInterval(timer);
 			}
+
+			if (is_sent) return;
+			is_sent = true;
 
 			// Send a result to the client
 			var result = {
@@ -340,13 +344,13 @@ router.post('/:deviceKeyword/exec', function (req, res) {
 				sentDevices: sent_device_ids
 			};
 
-			if (device_ids.length != 0 && sent_device_ids != 0) {
+			if (device_ids.length != 0 && sent_device_ids == 0) {
 				res.status(400).send(result);
 			} else {
 				res.send(result);
 			}
 
-		}, 5);
+		}, 100);
 
 	};
 
@@ -357,7 +361,7 @@ router.post('/:deviceKeyword/exec', function (req, res) {
 		sentAt: new Date()
 	};
 	for (var key in req.body) {
-		if (key == 'cmd') continue;
+		if (key == 'cmd' || key == 'deviceKeyword') continue;
 		send_data.args[key] = req.body[key];
 	}
 
