@@ -16,7 +16,7 @@
 
 			<md-card flex="50" ng-repeat="device in devices" ng-class="{'status-active' : device.isConnected}">
 				<md-card-content>
-					<h3>
+					<h3 style="margin-bottom: 2px;">
 						<md-icon>developer_board</md-icon>&nbsp;&nbsp;
 						<span title="{{device.deviceTypeName}} (ID: {{device.deviceTypeId}})">
 							{{device.deviceTypeBaseName}}
@@ -24,27 +24,49 @@
 						<small class="sub">(ID: {{device.id}})</small>
 					</h3>
 
-					<p>
-						Type: {{device.deviceTypeBaseName}} / {{device.deviceTypeName}} (ID: {{device.deviceTypeId}})
-					</p>
-					<p>
-						Created on {{device.createdAt | date : 'medium'}}
-					</p>
-					<p>
-						Approved by
-						<a ng-href="/#/accounts/{{device.approvedAccountId}}" target="_blank">{{device.approvedAccountName}} (ID: {{device.approvedAccountId}})</a>
-						on {{device.approvedAt | date : 'medium'}}
-					</p>
-					<p>
-						Last Connected on
-						<span ng-if="device.lastConnectedAt == null">N/A</span>
-						<span ng-if="device.lastConnectedAt != null && !device.isConnected">{{device.lastConnectedAt | date : 'medium'}}</span>
-						<span ng-if="device.lastConnectedAt != null && device.isConnected">Just Now
-							<small>from {{device.lastConnectedAt | date : 'medium'}}, IP: {{device.ipAddress}}</small></span>
-					</p>
+					<div layout="row">
+
+						<div flex>
+							<h5>Type</h5>
+							<p>
+								<small>{{device.deviceTypeName | substring : 0 : 20}} (ID: {{device.deviceTypeId}})</small>
+							</p>
+						</div>
+
+						<div flex>
+							<h5>Created</h5>
+							<p>
+								<small>{{device.createdAt | date : 'medium'}}</small>
+							</p>
+						</div>
+
+						<div flex>
+							<h5>Connected</h5>
+							<p ng-if="device.lastConnectedAt == null">N/A</p>
+							<p ng-if="device.lastConnectedAt != null && !device.isConnected">{{device.lastConnectedAt | date : 'medium'}}</p>
+							<p ng-if="device.lastConnectedAt != null && device.isConnected">
+								<span style="color: green;">Online</span><br/>
+								<small>
+									{{device.lastConnectedAt | date : 'medium'}}<br/>
+									{{device.ipAddress}}
+								</small>
+							</p>
+						</div>
+
+						<div flex>
+							<h5>Approved</h5>
+							<p>
+								<a ng-href="/#/accounts/{{device.approvedAccountId}}" target="_blank">
+									{{device.approvedAccountName}}
+									<small>(ID: {{device.approvedAccountId}})</small></a><br/>
+								<small>{{device.approvedAt | date : 'medium'}}</small>
+							</p>
+						</div>
+
+					</div>
 
 				</md-card-content>
-				<md-card-actions layout="row" layout-align="end center">
+				<md-card-actions layout="row" layout-align="end center" style="margin-top: 0px;">
 					<md-button ng-href="/#/devices/{{device.id}}" class="md-icon-button" aria-label="Edit this device">
 						<md-icon>edit</md-icon>
 					</md-button>

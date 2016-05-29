@@ -9,6 +9,28 @@ angular.module('DenHubControlPanelApp',
 
 
 /**
+ * Filters
+ */
+
+
+.filter('substring', function() {
+	return function(str, start, end) {
+		return str.substring(start, end);
+	};
+})
+
+
+.filter('zpadding', function() {
+	return function(num, digit) {
+		while(num.toString().length < digit){
+			num = '0' + num.toString();
+		}
+		return num;
+	};
+})
+
+
+/**
  * Configurations
  */
 
@@ -193,8 +215,12 @@ function($scope, $window, $location, $mdSidenav, Accounts, SessionService) {
 
 
 // Controller for Dashboard Page
-.controller('DashboardPageCtrl', ['$scope', '$location', '$mdDialog', '$sanitize', 'Devices',
-function($scope, $location, $mdDialog, $sanitize, Devices) {
+.controller('DashboardPageCtrl', ['$scope', '$location', '$mdDialog', '$interval', '$sanitize', 'Devices',
+function($scope, $location, $mdDialog, $interval, $sanitize, Devices) {
+
+	// Update Information
+	$scope.updatedAt = null;
+	$scope.errorText = null;
 
 	// Online Devices
 	$scope.onlineDevices = [];
@@ -204,28 +230,26 @@ function($scope, $location, $mdDialog, $sanitize, Devices) {
 
 
 	/**
-	 * Get a list of Unapproved devices
+	 * Get a list of devices
 	 */
-	$scope.getUnapprovedDevices = function () {
+	$scope.getDashboardItems = function () {
 
 		Devices.get({ approved: false },function (items) {
 			$scope.unapprovedDevices = items;
+
+			Devices.get({ isOnline: true },function (items) {
+				$scope.onlineDevices = items;
+
+				// Update the update information
+				$scope.updatedAt = new Date();
+				$scope.errorText = null;
+
+			}, function (err, status) {
+				$scope.errorText = err.statusText || err.status;
+			});
+
 		}, function (err, status) {
-			console.log(err);
-		});
-
-	};
-
-
-	/**
-	 * Get a list of the Online Devices
-	 */
-	$scope.getOnlineDevices = function () {
-
-		Devices.get({ isOnline: true },function (items) {
-			$scope.onlineDevices = items;
-		}, function (err, status) {
-			console.log(err);
+			$scope.errorText = err.statusText || err.status;
 		});
 
 	};
@@ -252,8 +276,7 @@ function($scope, $location, $mdDialog, $sanitize, Devices) {
 				id: device.id
 			}, function (data) {
 
-				$scope.getOnlineDevices();
-				$scope.getUnapprovedDevices();
+				$scope.getDashboardItems();
 
 			}, function (err, status) {
 				console.warn(err);
@@ -307,8 +330,16 @@ function($scope, $location, $mdDialog, $sanitize, Devices) {
 
 	// ----
 
-	$scope.getOnlineDevices();
-	$scope.getUnapprovedDevices();
+	$scope.getDashboardItems();
+
+	// Start a interval timer for updating
+	var interval = $interval(function () {
+		$scope.getDashboardItems();
+	}, 5000);
+
+	$scope.$on('$destroy', function () {
+		$interval.cancel(interval);
+	});
 
 }])
 

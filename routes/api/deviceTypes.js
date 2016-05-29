@@ -9,13 +9,13 @@ var crypto = require('crypto'),	async = require('async');
 var wsApi = require(__dirname + '/../_websocket-api'), helper = require(__dirname + '/../../models/helper');
 
 /**
- * GET /api/devices - Get a list of the devices
+ * GET /api/deviceTypes - Get a list of the devices
  */
 router.get('/', function (req, res) {
 
 	var db = helper.getDB();
-	db.query('SELECT DeviceType.*, COUNT(*) AS numOfDevices FROM Device RIGHT JOIN DeviceType\
-	ON DeviceType.id = Device.deviceTypeID GROUP BY Device.deviceTypeId;',
+	db.query('SELECT DeviceType.*, COUNT(*) AS numOfDevices FROM DeviceType RIGHT OUTER JOIN Device \
+ON Device.deviceTypeId = DeviceType.id GROUP BY Device.deviceTypeId;',
 		function (err, rows) {
 
 		if (err) throw err;
