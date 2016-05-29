@@ -17,7 +17,7 @@
 				<md-card-content>
 					<h3>
 						<md-icon>developer_board</md-icon>&nbsp;&nbsp;
-						{{deviceType.name}}&nbsp;&nbsp;&nbsp;&nbsp;
+						{{deviceType.name | substring : 0 : 20}}&nbsp;&nbsp;&nbsp;&nbsp;
 						<small class="sub">(ID: {{deviceType.id}})</small>
 					</h3>
 					<p>
