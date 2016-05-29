@@ -8,28 +8,46 @@
 					<span>
 						<md-icon>explore</md-icon>&nbsp;
 						Command Explorer&nbsp;&nbsp;&gt;&nbsp;&nbsp;
-						<span ng-if="device.id == null">{{deviceType.name}}</span>
+						<a href="#/deviceTypes/{{deviceType.id}}/commands">{{deviceType.name | substring : 0 : 20}}</a>
+						<span ng-if="cmdName != null">&nbsp;&nbsp;&gt;&nbsp;&nbsp;{{cmdName}}</span>
 					</span>
 				</h2>
 				<span flex></span>
 			</div>
 		</md-toolbar>
 
-		<md-content layout="column" style="background-color: inherit;">
+		<md-content layout="column" style="background-color: inherit;" ng-cloak>
 
 			<md-card flex ng-repeat="(cmd_name, cmd) in deviceType.commands">
 
-				<md-card-content>
-
+				<!-- Card Content for Command List -->
+				<md-card-content ng-if="cmdName == null">
 					<div>
 
 						<h3 name="{{cmd_name}}">
-							{{cmd_name}}
+							<a ng-href="#/deviceTypes/{{deviceType.id}}/commands/{{cmd_name}}">{{cmd_name}}</a>
 						</h3>
 
 						<p>
 							{{cmd.description}}
 						</p>
+
+					</div>
+				</md-card-content>
+				<!---->
+
+				<!-- Card Content for Command Detail -->
+				<md-card-content ng-if="cmdName != null">
+
+					<div>
+
+						<h3>{{cmd_name}}</h3>
+
+						<p>
+							{{cmd.description}}
+						</p>
+
+						<hr style="border: 1px solid #dddddd; margin-bottom: 30px;"/>
 
 						<form>
 							<div layout="column">
@@ -43,12 +61,30 @@
 
 					</div>
 
+					<!-- Detail of Execution Result -->
+					<div style="margin-right: 1rem;">
+						<span ng-if="!tryCmds[cmd_name].isSuccessful" style="color: red;" ng-bind-html="tryCmds[cmd_name].result">
+						</span>
+					</div>
+					<!---->
 
 				</md-card-content>
 
-				<md-card-actions layout="row" layout-align="end center">
+				<md-card-actions ng-if="cmdName != null" layout="row" layout-align="end center">
+					<!-- Summary of Execution Result -->
+					<div style="margin-left: 1rem; margin-right: 1rem;" ng-if="tryCmds[cmd_name].result">
+						<span ng-if="tryCmds[cmd_name].isSuccessful" style="color: green;">
+							{{tryCmds[cmd_name].result}}
+						</span>
+						<span ng-if="!tryCmds[cmd_name].isSuccessful" style="color: red;">
+							Failed
+						</span>
+					</div>
+					<!---->
+
 					<md-button ng-click="execCmd(cmd_name, tryCmds[cmd_name].args)" class="md-raised md-primary">TRY IT</md-button>
 				</md-card-actions>
+				<!---->
 
 			</md-card>
 

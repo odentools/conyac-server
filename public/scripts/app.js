@@ -67,6 +67,10 @@ angular.module('DenHubControlPanelApp',
 			templateUrl: 'templates/command-explorer.html',
 			controller: 'CommandExplorerPageCtrl'
 		}).
+		when('/deviceTypes/:id/commands/:cmdName', {
+			templateUrl: 'templates/command-explorer.html',
+			controller: 'CommandExplorerPageCtrl'
+		}).
 		when('/tokens', {
 			templateUrl: 'templates/tokens.html',
 			controller: 'TokensPageCtrl'
@@ -719,6 +723,8 @@ function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
 	// Object for try the commands
 	$scope.tryCmds = {};
 
+	// Filter
+	$scope.cmdName = $routeParams.cmdName || null;
 
 	/**
 	 * Get the device type
@@ -729,10 +735,19 @@ function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
 		DeviceTypes.find({id: id},
 		function (data) {
 
+			var commands = {};
+
 			for (var cmd_name in data.commands) {
 
+				if ($scope.cmdName && cmd_name != $scope.cmdName) continue;
+
+				commands[cmd_name] = data.commands[cmd_name];
+
+				// Initialize the tryCmds object
 				$scope.tryCmds[cmd_name] = {
-					args: {}
+					args: {},
+					result: null,
+					isSuccessful: false
 				};
 
 				// Set a default value of the arguments
@@ -742,6 +757,8 @@ function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
 				}
 
 			}
+
+			data.commands = commands;
 			$scope.deviceType = data;
 
 		}, function (err, status) {
@@ -765,12 +782,8 @@ function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
 		DeviceTypes.execCmd(cmd_args,
 		function (data) {
 
-			var dialog = $mdDialog.alert({
-				title: 'Successful! :)',
-				textContent: data.message,
-				ok: 'OK'
-			});
-			$mdDialog.show(dialog);
+			$scope.tryCmds[cmd_name].isSuccessful = true;
+			$scope.tryCmds[cmd_name].result = data.message;
 
 		}, function (err, status) {
 
@@ -778,19 +791,15 @@ function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
 			if (err.data.errors) {
 				var errors = [];
 				err.data.errors.forEach(function (err ,i) {
-					errors.push('<li>' + err.replace(new RegExp('\\n', 'g'), '<br/>&nbsp;') + '</li>');
+					errors.push('<li>' + err.replace(new RegExp('\\n', 'g'), '&nbsp;&nbsp;-&nbsp;&nbsp;') + '</li>');
 				});
-				content = $sanitize(errors.join(''));
+				content = $sanitize(err.data.message + '<br/><br/>' + errors.join(''));
 			} else {
 				content = err.data;
 			}
 
-			var dialog = $mdDialog.alert({
-				title: 'Failed',
-				htmlContent: content,
-				ok: 'OK'
-			});
-			$mdDialog.show(dialog);
+			$scope.tryCmds[cmd_name].isSuccessful = false;
+			$scope.tryCmds[cmd_name].result = content;
 
 		});
 
