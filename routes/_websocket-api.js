@@ -79,11 +79,11 @@ module.exports = {
 
 		for (var i = 0, l = wsConnections.length; i < l; i++) {
 			try {
-				if (wsConnections[i].deviceId == device_id) {
+				if (wsConnections[i].deviceId == device_id && wsConnections[i]) {
 					return wsConnections[i];
 				}
 			} catch (e) {
-				console.log(e.toString);
+				console.log(e.toString());
 			}
 		}
 

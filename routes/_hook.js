@@ -19,7 +19,6 @@ module.exports = function (req, res, next) {
 
 	// Check the access to API via API Token
 	var api_token = req.query.token || req.params.token || null;
-	console.log(api_token);
 	if (api_token) {
 
 		helper.getDB().query('SELECT * FROM ApiToken WHERE token = ?;', [api_token], function (err, rows) {
