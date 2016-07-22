@@ -15,6 +15,7 @@ angular.module('DenHubControlPanelApp',
 
 .filter('substring', function() {
 	return function(str, start, end) {
+		if (str == null) return;
 		return str.substring(start, end);
 	};
 })
@@ -714,14 +715,16 @@ function($scope, $mdDialog, DeviceTypes) {
 
 
 // Controller for Command Explorer Page
-.controller('CommandExplorerPageCtrl', ['$scope', '$mdDialog', '$routeParams', '$sanitize', 'DeviceTypes',
-function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
+.controller('CommandExplorerPageCtrl',
+['$scope', '$mdDialog', '$routeParams', '$sanitize', '$location', 'DeviceTypes',
+function($scope, $mdDialog, $routeParams, $sanitize, $location, DeviceTypes) {
 
 	// DeviceType
 	$scope.deviceType = {};
 
-	// Object for try the commands
+	// Map for try the commands
 	$scope.tryCmds = {};
+	$scope.httpApiUrl = null;
 
 	// Filter
 	$scope.cmdName = $routeParams.cmdName || null;
@@ -736,6 +739,9 @@ function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
 		function (data) {
 
 			var commands = {};
+
+			$scope.httpApiUrl = $location.protocol() + '://'
+			+ $location.host() + ':' + $location.port() + '/api/devices/type=' + data.id;
 
 			for (var cmd_name in data.commands) {
 
@@ -756,6 +762,9 @@ function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
 					$scope.tryCmds[cmd_name].args[arg_name] = received_args[arg_name].default;
 				}
 
+				// Update the example
+				$scope.updateExample(cmd_name);
+
 			}
 
 			data.commands = commands;
@@ -764,6 +773,24 @@ function($scope, $mdDialog, $routeParams, $sanitize, DeviceTypes) {
 		}, function (err, status) {
 			console.log(err);
 		});
+
+	};
+
+
+	/**
+	 * Update the example
+	 * @param  {String} cmd_name Command Name
+	 */
+	$scope.updateExample = function (cmd_name) {
+
+		var example_curl = 'curl ' + $scope.httpApiUrl + '/' + cmd_name + '\\\n'
+			+ ' -H "Authorization: Bearer YOUR-API-TOKEN" -H "Content-type: application/json" -X POST \\\n';
+
+		var args = $scope.tryCmds[cmd_name].args;
+		var args_json = JSON.stringify(args).replace(new RegExp('\'', 'g'), '\\\\\'\'');
+		example_curl += ' -d \'' + args_json + '\'';
+
+		$scope.tryCmds[cmd_name].exampleCurl = example_curl;
 
 	};
 

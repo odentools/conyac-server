@@ -251,9 +251,9 @@ router.post('/:id/approve', function (req, res) {
 
 
 /**
- * POST /api/devices/:deviceKeyword/exec - Execute the command on the device
+ * POST /api/devices/:deviceKeyword/:cmdName - Execute the command on the device
  */
-router.post('/:deviceKeyword/exec', function (req, res) {
+router.post('/:deviceKeyword/:cmdName', function (req, res) {
 
 	// Parse the device keyword
 	var device_keyword = req.params.deviceKeyword;
@@ -269,7 +269,7 @@ router.post('/:deviceKeyword/exec', function (req, res) {
 	}
 
 	// Check the parameter
-	var cmd_name = req.body.cmd;
+	var cmd_name = req.params.cmdName;
 	if (cmd_name == null) {
 		res.status(400).send('command was not defined');
 		return;

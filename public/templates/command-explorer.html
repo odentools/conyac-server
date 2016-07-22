@@ -1,95 +1,95 @@
 <!-- CommandExplorerPageCtrl -->
-<div flex layout="column">
-	<div flex layout="column" ng-cloak>
+<div flex layout="column" ng-cloak>
 
-		<md-toolbar class="section-header">
-			<div class="md-toolbar-tools">
-				<h2>
-					<span>
-						<md-icon>explore</md-icon>&nbsp;
-						Command Explorer&nbsp;&nbsp;&gt;&nbsp;&nbsp;
-						<a href="#/deviceTypes/{{deviceType.id}}/commands">{{deviceType.name | substring : 0 : 20}}</a>
-						<span ng-if="cmdName != null">&nbsp;&nbsp;&gt;&nbsp;&nbsp;{{cmdName}}</span>
-					</span>
-				</h2>
-				<span flex></span>
-			</div>
-		</md-toolbar>
+	<md-toolbar class="section-header">
+		<div class="md-toolbar-tools">
+			<h2>
+				<span>
+					<md-icon>explore</md-icon>&nbsp;
+					Command Explorer&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+					<a href="#/deviceTypes/{{deviceType.id}}/commands">{{deviceType.name | substring : 0 : 20}}</a>
+					<span ng-if="cmdName != null">&nbsp;&nbsp;&gt;&nbsp;&nbsp;{{cmdName}}</span>
+				</span>
+			</h2>
+			<span flex></span>
+		</div>
+	</md-toolbar>
 
-		<md-content layout="column" style="background-color: inherit;" ng-cloak>
+	<md-content layout="column" style="background-color: inherit;" ng-cloak>
 
-			<md-card flex ng-repeat="(cmd_name, cmd) in deviceType.commands">
+		<md-card flex ng-repeat="(cmd_name, cmd) in deviceType.commands">
 
-				<!-- Card Content for Command List -->
-				<md-card-content ng-if="cmdName == null">
-					<div>
+			<!-- Card Content for Command List -->
+			<md-card-content ng-if="cmdName == null">
+				<div>
 
-						<h3 name="{{cmd_name}}">
-							<a ng-href="#/deviceTypes/{{deviceType.id}}/commands/{{cmd_name}}">{{cmd_name}}</a>
-						</h3>
+					<h3 name="{{cmd_name}}">
+						<a ng-href="#/deviceTypes/{{deviceType.id}}/commands/{{cmd_name}}">{{cmd_name}}</a>
+					</h3>
 
-						<p>
-							{{cmd.description}}
-						</p>
+					<p>
+						{{cmd.description}}
+					</p>
 
+				</div>
+			</md-card-content>
+			<!---->
+
+			<!-- Card Content for Command Detail -->
+			<md-card-content ng-if="cmdName != null">
+
+				<h2>{{cmd_name}}</h2>
+
+				<p>
+					{{cmd.description}}
+				</p>
+
+				<hr style="border: 1px solid #dddddd; margin-top: 30px; margin-bottom: 30px;"/>
+
+				<h3>Try It</h3>
+
+				<form>
+					<div layout="column">
+						<!-- Field of Argument -->
+						<md-input-container ng-repeat="(arg_name, arg) in cmd.args" md-no-float class="md-block" flex>
+							<label>{{arg_name}} ({{arg.type}})</label>
+							<input ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.htmlInputType == 'number'" type="number" step="1" min="{{arg.min}}" max="{{arg.max}}" ng-change="updateExample(cmd_name)">
+							<input ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.htmlInputType == 'text'" md-maxlength="{{arg.max}}" type="text" ng-change="updateExample(cmd_name)">
+						</md-input-container>
+						<!---->
 					</div>
-				</md-card-content>
+
+					<div layout="row" layout-align="end center">
+						<!-- Summary of Execution Result -->
+						<div style="margin-left: 1rem; margin-right: 1rem;" ng-if="tryCmds[cmd_name].result">
+							<span ng-if="tryCmds[cmd_name].isSuccessful" style="color: green;">
+								{{tryCmds[cmd_name].result}}
+							</span>
+							<span ng-if="!tryCmds[cmd_name].isSuccessful" style="color: red;" ng-bind-html="tryCmds[cmd_name].result">
+							</span>
+						</div>
+						<!---->
+						<md-button ng-click="execCmd(cmd_name, tryCmds[cmd_name].args)" class="md-raised md-primary" style="margin-top: 0px;">SEND</md-button>
+					</div>
+				</form>
+
+				<hr style="border: 1px solid #dddddd; margin-top: 30px; margin-bottom: 30px;"/>
+
+				<h3>Examples</h3>
+
+				<!-- Example with curl -->
+				<md-input-container flex class="md-block">
+					<label>curl</label>
+					<textarea rows="5" ng-model="tryCmds[cmd_name].exampleCurl" md-select-on-focus readonly></textarea>
+				</md-input-container>
 				<!---->
 
-				<!-- Card Content for Command Detail -->
-				<md-card-content ng-if="cmdName != null">
+			</md-card-content>
+			<!---->
 
-					<div>
+		</md-card>
 
-						<h3>{{cmd_name}}</h3>
+	</md-content>
 
-						<p>
-							{{cmd.description}}
-						</p>
-
-						<hr style="border: 1px solid #dddddd; margin-bottom: 30px;"/>
-
-						<form>
-							<div layout="column">
-								<md-input-container ng-repeat="(arg_name, arg) in cmd.args" md-no-float class="md-block" flex>
-									<label>{{arg_name}} ({{arg.type}})</label>
-									<input ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.htmlInputType == 'number'" type="number" step="1" min="{{arg.min}}" max="{{arg.max}}">
-									<input ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.htmlInputType == 'text'" type="text">
-								</md-input-container>
-							</div>
-						</form>
-
-					</div>
-
-					<!-- Detail of Execution Result -->
-					<div style="margin-right: 1rem;">
-						<span ng-if="!tryCmds[cmd_name].isSuccessful" style="color: red;" ng-bind-html="tryCmds[cmd_name].result">
-						</span>
-					</div>
-					<!---->
-
-				</md-card-content>
-
-				<md-card-actions ng-if="cmdName != null" layout="row" layout-align="end center">
-					<!-- Summary of Execution Result -->
-					<div style="margin-left: 1rem; margin-right: 1rem;" ng-if="tryCmds[cmd_name].result">
-						<span ng-if="tryCmds[cmd_name].isSuccessful" style="color: green;">
-							{{tryCmds[cmd_name].result}}
-						</span>
-						<span ng-if="!tryCmds[cmd_name].isSuccessful" style="color: red;">
-							Failed
-						</span>
-					</div>
-					<!---->
-
-					<md-button ng-click="execCmd(cmd_name, tryCmds[cmd_name].args)" class="md-raised md-primary">TRY IT</md-button>
-				</md-card-actions>
-				<!---->
-
-			</md-card>
-
-		</md-content>
-
-	</div>
 </div>
 <!---->

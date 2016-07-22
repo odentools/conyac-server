@@ -19,8 +19,10 @@ module.exports = function (req, res, next) {
 
 	// Check the access to API via API Token
 	var api_token = req.query.token || req.params.token || null;
+	if (!api_token && req.header('Authorization') && req.header('Authorization').indexOf('Bearer CP-') == -1 && req.header('Authorization').match(/^Bearer (\S+)$/)) {
+		api_token = RegExp.$1;
+	}
 	if (api_token) {
-
 		helper.getDB().query('SELECT * FROM ApiToken WHERE token = ?;', [api_token], function (err, rows) {
 
 			if (!err && 1 <= rows.length) { // Access with API Token
@@ -56,7 +58,7 @@ module.exports = function (req, res, next) {
 	}
 
 	// Check the session token
-	if (req.header('Authorization') && req.header('Authorization').match(/^Bearer (\S+)$/)) {
+	if (req.header('Authorization') && req.header('Authorization').match(/^Bearer CP-(\S+)$/)) {
 
 		var session_token = RegExp.$1;
 		helper.getDB().query('SELECT * FROM Session WHERE id = ?;', [session_token], function (err, rows) {

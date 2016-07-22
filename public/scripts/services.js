@@ -131,7 +131,8 @@ angular.module('DenHubServerAPI', ['ngResource', 'ngStorage'])
 		'/api/deviceTypes/:id',
 		{
 			id: '@id',
-			deviceKeyword: '@deviceKeyword'
+			deviceKeyword: '@deviceKeyword',
+			cmd: '@cmd'
 		},
 		{
 			get: {
@@ -146,7 +147,7 @@ angular.module('DenHubServerAPI', ['ngResource', 'ngStorage'])
 			},
 			execCmd: {
 				method: 'POST',
-				url: '/api/devices/:deviceKeyword/exec'
+				url: '/api/devices/:deviceKeyword/:cmd'
 			}
 		}
 	);
@@ -191,7 +192,7 @@ angular.module('DenHubServerAPI', ['ngResource', 'ngStorage'])
 		request: function (config) {
 
 			var token = SessionService.getToken();
-			if (token) config.headers['Authorization'] = 'Bearer ' + token;
+			if (token) config.headers['Authorization'] = 'Bearer CP-' + token;
 
 			return config;
 
