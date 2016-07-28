@@ -173,6 +173,8 @@ router.post('/signin', function (req, res) {
 		[account_name, account_pw],
 		function (err, rows) {
 
+			if (err) return res.status(500).send(err.toString());
+
 			if (rows.length == 0) { // Error
 				res.status(400).send('Account name or password was invalid.');
 				return;
