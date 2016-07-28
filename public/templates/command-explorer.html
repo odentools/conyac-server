@@ -73,10 +73,22 @@
 							<span ng-if="!tryCmds[cmd_name].isSuccessful" style="color: red;" ng-bind-html="tryCmds[cmd_name].result">
 							</span>
 						</div>
-						<!---->
 						<md-button ng-click="execCmd(cmd_name, tryCmds[cmd_name].args)" class="md-raised md-primary" style="margin-top: 0px;">SEND</md-button>
 					</div>
 				</form>
+
+				<h4>Results of Execution</h4>
+
+				<md-list class="md-dense" flex>
+
+					<md-list-item class="md-2-line" ng-repeat="item in tryCmds[cmd_name].successResponses">
+						<div class="md-list-item-text">
+							<h3>Device Id:&nbsp;&nbsp;{{tryCmds[cmd_name].successDevices[$index]}}</h3>
+							<p style="color: green;">{{item}}</p>
+						</div>
+					</tr>
+
+				</md-list>
 
 				<hr style="border: 1px solid #dddddd; margin-top: 30px; margin-bottom: 30px;"/>
 

@@ -10,9 +10,34 @@ var Device = require(__dirname + '/../models/device'), helper = require(__dirnam
 // Array for WebSocket Connections
 var wsConnections = [];
 
+// Command queues
+var CmdQueues = require(__dirname + '/../models/command-queues');
+
 // ----
 
 module.exports = {
+
+
+	/**
+	 * Get the connection by the Device ID
+	 * @param  {Number} device_id Device ID
+	 * @return {Object}           Connection instance of ws library
+	 */
+	getConnectionByDeviceId: function (device_id) {
+
+		for (var i = 0, l = wsConnections.length; i < l; i++) {
+			try {
+				if (wsConnections[i].deviceId == device_id && wsConnections[i]) {
+					return wsConnections[i];
+				}
+			} catch (e) {
+				console.log(e.toString());
+			}
+		}
+
+		return null;
+
+	},
 
 
 	/**
@@ -66,28 +91,6 @@ module.exports = {
 			ws.close();
 
 		});
-
-	},
-
-
-	/**
-	 * Get the connection by the Device ID
-	 * @param  {Number} device_id Device ID
-	 * @return {Object}           Connection instance of ws library
-	 */
-	getConnectionByDeviceId: function (device_id) {
-
-		for (var i = 0, l = wsConnections.length; i < l; i++) {
-			try {
-				if (wsConnections[i].deviceId == device_id && wsConnections[i]) {
-					return wsConnections[i];
-				}
-			} catch (e) {
-				console.log(e.toString());
-			}
-		}
-
-		return null;
 
 	},
 
@@ -214,9 +217,14 @@ module.exports = {
 			console.warn('Unknown message', e.toString());
 		}
 
-		if (data.cmd == '_sendManifest') {
+		if (data.cmd == '_sendManifest') { // Device manifest has been received
 			console.log('Manifest received: ' + JSON.stringify(data.args));
 			self._registerDeviceManifest(ws, ws.deviceId, data.args.commands, data.args.deviceType);
+			return;
+		} else if (data.cmd == '_sendCmdResponse') { // Response of the command has been received
+			console.log('Command response received: ' + JSON.stringify(data.args));
+			var cmd_queues = CmdQueues.getInstance(module.exports);
+			cmd_queues.onCommandExecuted(data.args.sourceCmdExecId, ws.deviceId, data.args.responseSuccess, data.args.responseError);
 		}
 
 	},

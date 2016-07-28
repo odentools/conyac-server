@@ -810,23 +810,32 @@ function($scope, $mdDialog, $routeParams, $sanitize, $location, DeviceTypes) {
 		function (data) {
 
 			$scope.tryCmds[cmd_name].isSuccessful = true;
-			$scope.tryCmds[cmd_name].result = data.message;
+			$scope.tryCmds[cmd_name].result = data.summaryMessage;
+			$scope.tryCmds[cmd_name].successDevices = data.successDevices;
+			$scope.tryCmds[cmd_name].errorDevices = data.errorDevices;
+			$scope.tryCmds[cmd_name].successResponses = data.successResponses;
+			$scope.tryCmds[cmd_name].errorResponses = data.errorResponses;
 
 		}, function (err, status) {
 
 			var content = null;
-			if (err.data.errors) {
+			if (0 < err.data.errorResponses.length) {
 				var errors = [];
-				err.data.errors.forEach(function (err ,i) {
+				err.data.errorResponses.forEach(function (err ,i) {
 					errors.push('<li>' + err.replace(new RegExp('\\n', 'g'), '&nbsp;&nbsp;-&nbsp;&nbsp;') + '</li>');
 				});
-				content = $sanitize(err.data.message + '<br/><br/>' + errors.join(''));
+				content = $sanitize(err.data.summaryMessage + '<br/><br/>' + errors.join(''));
 			} else {
-				content = err.data;
+				content = err.data.summaryMessage;
 			}
 
 			$scope.tryCmds[cmd_name].isSuccessful = false;
 			$scope.tryCmds[cmd_name].result = content;
+
+			$scope.tryCmds[cmd_name].successDevices = err.data.successDevices || [];
+			$scope.tryCmds[cmd_name].errorDevices = err.data.errorDevices || [];
+			$scope.tryCmds[cmd_name].successResponses = err.data.successResponses || [];
+			$scope.tryCmds[cmd_name].errorResponses = err.data.errorResponses || [];
 
 		});
 

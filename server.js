@@ -31,8 +31,9 @@ var server = require('http').createServer(app);
 
 // WebSocket API
 var wss = new WebSocketServer({server: server});
-var wsApi = require(__dirname + '/routes/_websocket-api');
-wss.on('connection', wsApi.onWsConnection);
+var common = require(__dirname + '/models/common');
+common.wsApi = require(__dirname + '/routes/_websocket-api');
+wss.on('connection', common.wsApi.onWsConnection);
 
 // Start the server
 var s = server.listen(process.env.PORT || 3000, function () {
