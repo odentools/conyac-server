@@ -82,7 +82,12 @@ CommandSender.prototype.onCommandExecuted = function (cmd_id, responses) {
 	});
 
 	// Make a send data
-	var message = 'Your command has sent to ' + success_device_ids.length + ' devices within Device ID ' + device_ids.join(',') + '.';
+	var message = null;
+	if (responses.length == 0) {
+		message = 'There are no online devices';
+	} else {
+		message = 'Your command has sent to ' + success_device_ids.length + ' devices within Device ID ' + device_ids.join(',') + '.';
+	}
 	var response_data = {
 		cmdExecId: cmd_id,
 		devices: device_ids,

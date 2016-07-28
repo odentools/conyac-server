@@ -52,8 +52,6 @@ CommandQueues.prototype.startCheckLoop = function () {
 
 		for (var cmd_id in self.queues) {
 
-			console.log(self.queues[cmd_id].cmdResponses.length, self.queues[cmd_id].numOfExpectedDevices);
-
 			if (self.queues[cmd_id].cmdResponses.length < self.queues[cmd_id].numOfExpectedDevices) {
 
 				// Check a timeout
@@ -105,12 +103,22 @@ CommandQueues.prototype.fireCommand = function (cmd_name, cmd_args, sender, targ
 	var cmd_id_salt = cmd_name + '|' + new Date().getTime() + '|' + Math.random();
 	var cmd_id = crypto.createHash('sha256').update(cmd_id_salt).digest('hex');
 
+	// Listup the connection of the online devices
+	var online_device_connections = {};
+	target_ids.forEach(function (device_id, index) {
+
+		var ws_con = common.wsApi.getConnectionByDeviceId(device_id);
+		if (ws_con) online_device_connections[device_id] = ws_con;
+
+	});
+
+	// Insert the item to the command queues
 	self.queues[cmd_id] = {
 		cmdName: cmd_name,
 		cmdArgs: cmd_args,
 		sender: sender,
-		targetIds: target_ids,
-		numOfExpectedDevices: target_ids.length,
+		targetIds: Object.keys(online_device_connections),
+		numOfExpectedDevices: Object.keys(online_device_connections).length,
 		cmdResponses: [],
 		sentAt: sent_date
 	};
@@ -124,23 +132,20 @@ CommandQueues.prototype.fireCommand = function (cmd_name, cmd_args, sender, targ
 	};
 
 	// Send a data to each devices
-	target_ids.forEach(function (device_id, index) {
+	for (var device_id in online_device_connections) {
 
-		var ws_con = common.wsApi.getConnectionByDeviceId(device_id);
-		if (ws_con) {
+		var ws_con = online_device_connections[device_id];
 
-			console.log('CommonQueues - Send a data to ' + device_id);
+		console.log('CommonQueues - Send a data to ' + device_id);
 
-			try {
-				ws_con.send(JSON.stringify(send_data));
-			} catch (e) {
-				console.log('CommonQueues - Could not sent a data to ' + device_id);
-				self.onCommandExecuted(cmd_id, device_id, null, 'Device ' + device_id + ' is offline');
-			}
-
+		try {
+			ws_con.send(JSON.stringify(send_data));
+		} catch (e) {
+			console.log('CommonQueues - Could not sent a data to ' + device_id);
+			self.onCommandExecuted(cmd_id, device_id, null, 'Device ' + device_id + ' is offline');
 		}
 
-	});
+	}
 
 	// Return the command ID
 	return cmd_id;
