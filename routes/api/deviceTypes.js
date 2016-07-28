@@ -76,6 +76,8 @@ router.get('/:id', function (req, res) {
 						arg.htmlInputType = 'text';
 					} else if (arg.type == 'NUMBER' || arg.type == 'INTEGER' || arg.type == 'FLOAT') {
 						arg.htmlInputType = 'number';
+					} else if (arg.type == 'BOOLEAN') {
+						arg.htmlInputType = null;
 					}
 				} catch (e) {
 					arg = {};

@@ -51,11 +51,16 @@
 				<form>
 					<div layout="column">
 						<!-- Field of Argument -->
-						<md-input-container ng-repeat="(arg_name, arg) in cmd.args" md-no-float class="md-block" flex>
+						<md-input-container ng-repeat="(arg_name, arg) in cmd.args" ng-if="arg.type != 'BOOLEAN'" md-no-float class="md-block" flex>
 							<label>{{arg_name}} ({{arg.type}})</label>
 							<input ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.htmlInputType == 'number'" type="number" step="1" min="{{arg.min}}" max="{{arg.max}}" ng-change="updateExample(cmd_name)">
 							<input ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.htmlInputType == 'text'" md-maxlength="{{arg.max}}" type="text" ng-change="updateExample(cmd_name)">
 						</md-input-container>
+						<md-radio-group ng-repeat="(arg_name, arg) in cmd.args" ng-change="updateExample(cmd_name)" ng-model="tryCmds[cmd_name].args[arg_name]" ng-if="arg.type == 'BOOLEAN'">
+							<label>{{arg_name}} ({{arg.type}})</label>
+							<md-radio-button ng-value="true">True</md-radio-button>
+							<md-radio-button ng-value="false">False</md-radio-button>
+						</md-radio-group>
 						<!---->
 					</div>
 
