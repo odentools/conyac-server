@@ -7,6 +7,7 @@
 'use strict';
 
 var express = require('express'), mysql = require('mysql'),
+	cors = require('cors'),
 	WebSocketServer = require('ws').Server;
 var helper = require(__dirname + '/models/helper');
 
@@ -18,6 +19,9 @@ app.use(express.static('public'));
 
 // Use application/json for Content-Type of POST request
 app.use(require('body-parser').json());
+
+// Allow the Cross Request
+app.use(cors());
 
 // Request Hooks
 app.use(require(__dirname + '/routes/_hook'));

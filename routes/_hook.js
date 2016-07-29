@@ -8,10 +8,6 @@ var helper = require(__dirname + '/../models/helper');
  */
 module.exports = function (req, res, next) {
 
-	// Allow the Cross Domain Request from JavaScript
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length');
-
 	// Clear the session information
 	req.headers.sessionAccountId = null;
 	req.headers.sessionToken = null;
