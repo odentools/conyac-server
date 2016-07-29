@@ -21,7 +21,9 @@ app.use(express.static('public'));
 app.use(require('body-parser').json());
 
 // Allow the Cross Request
-app.use(cors());
+app.use(cors({
+	allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Request Hooks
 app.use(require(__dirname + '/routes/_hook'));
