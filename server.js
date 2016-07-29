@@ -24,6 +24,7 @@ app.use(require('body-parser').json());
 app.use(cors({
 	allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.options('*', cors());
 
 // Request Hooks
 app.use(require(__dirname + '/routes/_hook'));
